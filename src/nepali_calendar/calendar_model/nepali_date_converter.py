@@ -353,9 +353,9 @@ class NepaliDateConverter:
             str: Formatted time string in Nepali.
         """
         period = (
-            "बिहान" if 4 <= simple_time.hour <= 10 else
-            "दिउँसो" if 11 <= simple_time.hour <= 15 else
-            "साँझ" if 16 <= simple_time.hour <= 19 else
+            "बिहान" if 3 <= simple_time.hour <= 11 else
+            "दिउँसो" if 12 <= simple_time.hour <= 16 else
+            "साँझ" if 17 <= simple_time.hour <= 19 else
             "राति"
         )
         hour = (
