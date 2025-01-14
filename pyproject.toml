@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nepali_calendar"
+version = "0.1.0"
+requires-python = ">=3.6"
+dependencies = []
+description = "Utilities for working with Nepali dates"
+readme = "README.md"
+license = {text = "MPL-2.0"}
+authors = [{name = "Shiva Thapa", email = "query.shivathapaa.dev@gmail.com"}]
+maintainers = [{name = "Shiva Thapa", email = "query.shivathapaa.dev@gmail.com"}]
+
+[project.urls]
+Homepage = "https://github.com/shivathapaa/nepali-calendar"
+Repository = "https://github.com/shivathapaa/nepali-calendar"
+
+[tool.setuptools.packages.find]
+where = ["src"]
