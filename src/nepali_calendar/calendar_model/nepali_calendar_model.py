@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from re import S
+from turtle import st
 from nepali_calendar.data.custom_calendar import *
 from nepali_calendar.data.nepali_date_locale import *
 from nepali_calendar.calendar_model.date_converters import DateConverters
@@ -286,15 +287,15 @@ class NepaliCalendarModel:
         return pattern_with_delimiters
 
     @staticmethod
-    def localize_number(string_to_localize, lang: NepaliDatePickerLang):
+    def localize_number(string_to_localize: str, lang: NepaliDatePickerLang):
         return string_to_localize if lang == NepaliDatePickerLang.ENGLISH else NepaliCalendarModel.convert_to_nepali_number(string_to_localize)
 
     @staticmethod
-    def localize_numbers_to_nepali(english_string):
+    def localize_numbers_to_nepali(english_string: str):
         return NepaliCalendarModel.convert_to_nepali_number(english_string)
 
     @staticmethod
-    def localize_number_to_english(nepali_string):
+    def localize_number_to_english(nepali_string: str):
         return NepaliCalendarModel.convert_to_english_number(nepali_string)
 
 
@@ -305,14 +306,14 @@ class NepaliCalendarModel:
     }
 
     @staticmethod
-    def convert_to_nepali_number(string):
+    def convert_to_nepali_number(string: str):
         return ''.join(
             NepaliCalendarModel.NEPALI_DIGITS[int(char)] if '0' <= char <= '9' else char
             for char in string
         )
 
     @staticmethod
-    def convert_to_english_number(string):
+    def convert_to_english_number(string: str):
         return ''.join(
             NepaliCalendarModel.NEPALI_TO_ENGLISH_DIGITS.get(char, char) for char in string
         )
