@@ -270,9 +270,9 @@ class NepaliDateConverter:
 
         weekdays = language.weekdays[day_of_week - 1]
         return {
-            "SHORT": weekdays.short,
-            "MEDIUM": weekdays.medium,
-            "FULL": weekdays.full,
+            NameFormat.SHORT: weekdays.short,
+            NameFormat.MEDIUM: weekdays.medium,
+            NameFormat.FULL: weekdays.full,
         }.get(format, weekdays.full)
 
     @staticmethod
