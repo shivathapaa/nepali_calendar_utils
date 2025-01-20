@@ -465,18 +465,22 @@ class NepaliDateConverter:
         )
 
     @staticmethod
-    def replace_delimiter(date_with_delimiter: str, new_delimiter: str) -> str:
+    def replace_delimiter(text: str, new_delimiter: str, old_delimiter=None) -> str:
         """
-        Replaces the delimiter in a date string.
+        Replaces delimiters in a string with a new delimiter.
 
-        Args:
-            date_with_delimiter (str): Date string with delimiters.
-            new_delimiter (str): The new delimiter to replace with.
+        Parameters:
+            text: The input string with delimiters to replace.
+            new_delimiter: The new delimiter to use in the string.
+            old_delimiter: The old delimiter to replace. If None, replace all non-alphanumeric delimiters.
 
         Returns:
-            str: Date string with the new delimiter.
+            The string with replaced delimiters.
         """
-        return date_with_delimiter.replace("/", new_delimiter)
+        if old_delimiter:
+            return text.replace(old_delimiter, new_delimiter)
+        
+        return ''.join(new_delimiter if not char.isalnum() else char for char in text)
 
     @staticmethod
     def localize_number(number: str, lang: NepaliDatePickerLang) -> str:
