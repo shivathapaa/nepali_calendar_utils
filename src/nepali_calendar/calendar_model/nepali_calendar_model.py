@@ -205,6 +205,7 @@ class NepaliCalendarModel:
 
     @staticmethod
     def format_english_date_nepali_time_to_iso_format(english_date: SimpleDate, time: SimpleTime) -> str:
+        kathmandu_tz = ZoneInfo("Asia/Kathmandu")
         local_datetime = datetime(
             english_date.year,
             english_date.month,
@@ -212,12 +213,15 @@ class NepaliCalendarModel:
             time.hour,
             time.minute,
             time.second,
-            time.nanosecond // 1000
-        )
-        return local_datetime.isoformat()
-
+            time.nanosecond // 1000,
+            tzinfo=kathmandu_tz
+        )    
+        utc_datetime = local_datetime.astimezone(ZoneInfo("UTC"))
+        return utc_datetime.isoformat().replace("+00:00", "Z")
+    
     @staticmethod
     def format_nepali_date_time_to_iso_format(nepali_date: SimpleDate, time: SimpleTime) -> str:
+        kathmandu_tz = ZoneInfo("Asia/Kathmandu")
         converted_english_date = NepaliCalendarModel.convert_to_english_date(
             nepali_date.year, nepali_date.month, nepali_date.day_of_month
         )
@@ -228,9 +232,11 @@ class NepaliCalendarModel:
             time.hour,
             time.minute,
             time.second,
-            time.nanosecond // 1000
+            time.nanosecond // 1000,
+            tzinfo=kathmandu_tz
         )
-        return local_datetime.isoformat()
+        utc_datetime = local_datetime.astimezone(ZoneInfo("UTC"))
+        return utc_datetime.isoformat().replace("+00:00", "Z")
 
     @staticmethod
     def compare_dates_custom(calendar: CustomCalendar, year, month, day_of_month):
