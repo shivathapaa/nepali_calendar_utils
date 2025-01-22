@@ -1,30 +1,6 @@
-from dataclasses import dataclass
+from nepali_calendar.data.custom_calendar import CustomCalendar
+from nepali_calendar.data.nepali_date_locale import *
 from enum import Enum
-
-class NameFormat(Enum):
-    SHORT = "SHORT"
-
-class NepaliDateFormatStyle(Enum):
-    SHORT_YMD = "SHORT_YMD"
-
-@dataclass
-class NepaliDateLocale:
-    month_name: NameFormat = NameFormat.SHORT
-
-@dataclass
-class CustomCalendar:
-    year: int
-    month: int
-    day_of_month: int
-    total_days_in_month: int
-    day_of_week_in_month: int
-    day_of_week: int
-    day_of_year: int
-    week_of_month: int
-    era: int
-    week_of_year: int
-    first_day_of_month: int
-    last_day_of_month: int
 
 class NepaliDatePickerDefaults:
     FIRST_DAY_OF_WEEK = 1

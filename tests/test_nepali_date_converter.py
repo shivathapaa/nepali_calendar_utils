@@ -1,5 +1,4 @@
 import unittest
-from nepali_calendar.calendar_model import date_converters
 from nepali_calendar.data.custom_calendar import *
 from nepali_calendar.calendar_model.nepali_calendar_model import NepaliCalendarModel
 from nepali_calendar.calendar_model.nepali_date_converter import NepaliDateConverter
