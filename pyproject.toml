@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "nepali_calendar"
@@ -9,13 +9,13 @@ description = "Utilities for working with Nepali dates"
 authors = [{name = "Shiva Thapa", email = "query.shivathapaa.dev@gmail.com"}]
 maintainers = [{name = "Shiva Thapa", email = "query.shivathapaa.dev@gmail.com"}]
 readme = "README.md"
-license = {text = "MPL-2.0"}
+license = {file = "LICENSE"}
 
 requires-python = ">=3.6"
 dependencies = []
 
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Topic :: Utilities",
     "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
@@ -25,9 +25,8 @@ classifiers = [
     ]
 
 [project.urls]
-Homepage = "https://github.com/shivathapaa/nepali-calendar"
-Repository = "https://github.com/shivathapaa/nepali-calendar"
-Documentation = "https://github.com/shivathapaa/nepali-calendar"
+Homepage = "https://github.com/shivathapaa/nepali_calendar"
+Documentation = "https://github.com/shivathapaa/nepali_calendar"
 
 [tool.setuptools.packages.find]
 where = ["src"]
