@@ -1,6 +1,5 @@
-from nepali_calendar.data.custom_calendar import CustomCalendar
-from nepali_calendar.data.nepali_date_locale import *
-from enum import Enum
+from nepali_calendar_utils.data.custom_calendar import CustomCalendar
+from nepali_calendar_utils.data.nepali_date_locale import *
 
 class NepaliDatePickerDefaults:
     FIRST_DAY_OF_WEEK = 1

@@ -3,17 +3,17 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "nepali_calendar"
+name = "nepali_calendar_utils"
 version = "1.0.0"
 description = "Utilities for working with Nepali dates"
 authors = [{name = "Shiva Thapa", email = "query.shivathapaa.dev@gmail.com"}]
 maintainers = [{name = "Shiva Thapa", email = "query.shivathapaa.dev@gmail.com"}]
 readme = "README.md"
-license = {file = "LICENSE"}
-
+license = "MPL-2.0"
+license-files = ["LICEN[CS]E*"]
 requires-python = ">=3.6"
 dependencies = []
-
+keywords = ["nepali date", "date utilities", "nepali calendar", "nepali date utilities"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -22,11 +22,8 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    ]
+]
 
 [project.urls]
-Homepage = "https://github.com/shivathapaa/nepali_calendar"
-Documentation = "https://github.com/shivathapaa/nepali_calendar"
-
-[tool.setuptools.packages.find]
-where = ["src"]
+Homepage = "https://github.com/shivathapaa/nepali_calendar_utils"
+Documentation = "https://github.com/shivathapaa/nepali_calendar_utils/blob/main/README.md"

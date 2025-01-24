@@ -1,8 +1,8 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from nepali_calendar.data.custom_calendar import *
-from nepali_calendar.data.nepali_date_locale import *
-from nepali_calendar.calendar_model.date_converters import DateConverters
+from nepali_calendar_utils.data.custom_calendar import *
+from nepali_calendar_utils.data.nepali_date_locale import *
+from nepali_calendar_utils.calendar_model.date_converters import DateConverters
 
 class NepaliCalendarModel:
     def __init__(self, locale: NepaliDateLocale = NepaliDateLocale()):

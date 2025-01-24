@@ -1,7 +1,7 @@
 from typing import Tuple
-from nepali_calendar.calendar_model.nepali_calendar_defaults import *
-from nepali_calendar.data.nepali_year_month_map import *
-from nepali_calendar.data.custom_calendar import *
+from nepali_calendar_utils.calendar_model.nepali_calendar_defaults import *
+from nepali_calendar_utils.data.nepali_year_month_map import *
+from nepali_calendar_utils.data.custom_calendar import *
 from datetime import date
 
 class DateConverters:

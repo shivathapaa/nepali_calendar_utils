@@ -1,7 +1,7 @@
-from nepali_calendar.data.custom_calendar import *
-from nepali_calendar.calendar_model.nepali_calendar_model import NepaliCalendarModel
+from nepali_calendar_utils.data.custom_calendar import *
+from nepali_calendar_utils.calendar_model.nepali_calendar_model import NepaliCalendarModel
 from datetime import date
-from nepali_calendar.data.nepali_date_locale import NameFormat, NepaliDateLocale, NepaliDatePickerLang
+from nepali_calendar_utils.data.nepali_date_locale import NameFormat, NepaliDateLocale, NepaliDatePickerLang
 
 class NepaliDateConverter:
     """A utility class for handling Nepali date conversions, formatting, and related operations."""

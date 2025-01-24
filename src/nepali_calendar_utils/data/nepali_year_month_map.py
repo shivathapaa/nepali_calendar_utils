@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from nepali_calendar.data.custom_calendar import CustomCalendar
+from nepali_calendar_utils.data.custom_calendar import CustomCalendar
 
 @dataclass(frozen=True)
 class ReferenceDate:
