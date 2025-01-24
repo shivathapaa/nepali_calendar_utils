@@ -10,14 +10,19 @@ class NepaliDateConverter:
         self.calendar_model = NepaliCalendarModel()
 
     @property
-    def today_nepali_date(self) -> CustomCalendar:
+    def today_nepali_calendar(self) -> CustomCalendar:
         """Returns today's date in the Nepali calendar as a CustomCalendar."""
-        return self.calendar_model.today
+        return self.calendar_model.today_nepali_calendar
 
     @property
-    def today_english_date(self) -> SimpleDate:
+    def today_english_calendar(self) -> CustomCalendar:
+        """Returns today's date in the English calendar as a CustomCalendar."""
+        return self.calendar_model.today_english_calendar
+
+    @property
+    def today_english_simple_date(self) -> SimpleDate:
         """Returns today's date in the English calendar as a SimpleDate."""
-        return self.calendar_model.today_english
+        return self.calendar_model.today_english_simple_date
 
     @property
     def current_time() -> SimpleTime:

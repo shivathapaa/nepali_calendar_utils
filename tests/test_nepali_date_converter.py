@@ -381,7 +381,7 @@ class TestNepaliDateConverter(unittest.TestCase):
         
 
     def test_get_nepali_month_today_nepali_date_get_same_custom_month_and_nepali_calendar_properties(self):
-        today = self.calendar_model.today
+        today = self.calendar_model.today_nepali_calendar
 
         nepali_month_from_simple_date = self.calendar_model.get_nepali_calendar(today.to_simple_date())
         nepali_month_from_year_and_month = self.calendar_model.get_nepali_month(
@@ -442,7 +442,7 @@ class TestNepaliDateConverter(unittest.TestCase):
         
         
     def test_get_nepali_month_today(self):
-        today = self.calendar_model.today
+        today = self.calendar_model.today_nepali_calendar
 
         nepali_month_from_simple_date = self.calendar_model.get_nepali_calendar(
             simple_nepali_date=today.to_simple_date()
@@ -637,7 +637,7 @@ class TestNepaliDateConverter(unittest.TestCase):
 
     def test_compare_calculated_nepali_calendar_using_day_month_year(self):
         converter = NepaliDateConverter()
-        today = converter.today_nepali_date
+        today = converter.today_nepali_calendar
         
         calculated_nepali_calendar_from_today = NepaliDateConverter.get_nepali_calendar(today.year, today.month, today.day_of_month)
 
@@ -708,7 +708,7 @@ class TestNepaliDateConverter(unittest.TestCase):
 
     def test_compare_nepali_calendar_after_day_adjustments(self):
         converter = NepaliDateConverter()
-        today = converter.today_nepali_date
+        today = converter.today_nepali_calendar
         adjusted_calendar_of_today = NepaliDateConverter.get_nepali_calendar_after_addition_or_subtraction(
             today.year, today.month, today.day_of_month, 0
         )
@@ -808,7 +808,7 @@ class TestNepaliDateConverter(unittest.TestCase):
 
     def test_format_nepali_date_using_other_helper_function_of_names_custom_calendar_date_get_formatted_date_in_string(self):
         date_converter = NepaliDateConverter()
-        custom_calendar = date_converter.today_nepali_date
+        custom_calendar = date_converter.today_nepali_calendar
 
         week_day_name_in_english = NepaliDateConverter.get_weekday_name(
             day_of_week=custom_calendar.day_of_week, format=NameFormat.FULL, language=NepaliDatePickerLang.ENGLISH
@@ -917,8 +917,8 @@ class TestNepaliDateConverter(unittest.TestCase):
 
     def test_format_english_date_using_other_helper_function_of_names_custom_calendar_date_get_formatted_date_in_string(self):
         date_converter = NepaliDateConverter()
-        custom_calendar = date_converter.today_nepali_date
-        today_nepali_date = date_converter.today_nepali_date
+        custom_calendar = date_converter.today_nepali_calendar
+        today_nepali_date = date_converter.today_nepali_calendar
         custom_calendar = NepaliDateConverter.convert_nepali_to_english(
             today_nepali_date.year, today_nepali_date.month, today_nepali_date.day_of_month
         )
@@ -1028,10 +1028,10 @@ class TestNepaliDateConverter(unittest.TestCase):
         date_convert = NepaliDateConverter()
         time = SimpleTime(14, 30, 15, 0)
 
-        nepali_date = date_convert.today_nepali_date.to_simple_date()
+        nepali_date = date_convert.today_nepali_calendar.to_simple_date()
         nepali_date_iso_format = NepaliDateConverter.format_nepali_datetime_to_iso(nepali_date, time)
 
-        english_date = date_convert.today_english_date
+        english_date = date_convert.today_english_simple_date
         english_date_iso_format = NepaliDateConverter.format_english_date_nepali_time_to_iso(english_date, time)
 
         self.assertEqual(nepali_date_iso_format, english_date_iso_format)

@@ -11,11 +11,16 @@ class NepaliCalendarModel:
         self.local_english_date_time = datetime.now(self.time_zone)
         
     @property
-    def today(self) -> CustomCalendar:
+    def today_nepali_calendar(self) -> CustomCalendar:
         return self.get_nepali_date_instance()
+    
+    @property
+    def today_english_calendar(self) -> CustomCalendar:
+        today_nepali_calendar = NepaliCalendarModel().today_nepali_calendar
+        return DateConverters.convert_to_english_date(nepali_yyyy=today_nepali_calendar.year, nepali_mm=today_nepali_calendar.month, nepali_dd=today_nepali_calendar.day_of_month)
 
     @property
-    def today_english(self) -> SimpleDate:
+    def today_english_simple_date(self) -> SimpleDate:
         return SimpleDate(
             year=self.local_english_date_time.year,
             month=self.local_english_date_time.month,
