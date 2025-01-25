@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nepali_calendar_utils"
-version = "1.0.0"
+version = "1.1.0"
 description = "Utilities for working with Nepali dates"
 authors = [{name = "Shiva Thapa", email = "query.shivathapaa.dev@gmail.com"}]
 maintainers = [{name = "Shiva Thapa", email = "query.shivathapaa.dev@gmail.com"}]
@@ -27,3 +27,5 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/shivathapaa/nepali_calendar_utils"
 Documentation = "https://github.com/shivathapaa/nepali_calendar_utils/blob/main/README.md"
+Repository = "https://github.com/shivathapaa/nepali_calendar_utils"
+"Bug Tracker" = "https://github.com/shivathapaa/nepali_calendar_utils/issues"
