@@ -268,14 +268,14 @@ class NepaliCalendarModel:
             raise ValueError(f"Invalid day value: {day}. Must be between 1 and {max_days_in_month} for month {month}.")
 
     @staticmethod
-    def get_nepali_month_name(month_of_year, format: NameFormat, language: NepaliDatePickerLang):
+    def get_nepali_month_name(month_of_year, format: NameFormat, language: NepaliCalendarUtilsLang):
         if month_of_year < 1 or month_of_year > 12:
             raise ValueError(f"Invalid monthOfYear value: {month_of_year}. Must be between 1 and 12.")
         month = language.months[month_of_year - 1]
         return month.short if format == NameFormat.SHORT else month.full
 
     @staticmethod
-    def get_english_month_name(month, language: NepaliDatePickerLang, format: NameFormat):
+    def get_english_month_name(month, language: NepaliCalendarUtilsLang, format: NameFormat):
         if month < 1 or month > 12:
             raise ValueError(f"Invalid month value: {month}. Must be between 1 and 12.")
         month_index = language.english_months[month - 1]
@@ -295,8 +295,8 @@ class NepaliCalendarModel:
         return pattern_with_delimiters
 
     @staticmethod
-    def localize_number(string_to_localize: str, lang: NepaliDatePickerLang):
-        return string_to_localize if lang == NepaliDatePickerLang.ENGLISH else NepaliCalendarModel.convert_to_nepali_number(string_to_localize)
+    def localize_number(string_to_localize: str, lang: NepaliCalendarUtilsLang):
+        return string_to_localize if lang == NepaliCalendarUtilsLang.ENGLISH else NepaliCalendarModel.convert_to_nepali_number(string_to_localize)
 
     @staticmethod
     def localize_numbers_to_nepali(english_string: str):

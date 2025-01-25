@@ -2,7 +2,7 @@ import unittest
 from nepali_calendar_utils.data.custom_calendar import *
 from nepali_calendar_utils.calendar_model.nepali_calendar_model import NepaliCalendarModel
 from nepali_calendar_utils.calendar_model.nepali_date_converter import NepaliDateConverter
-from nepali_calendar_utils.data.nepali_date_locale import NameFormat, NepaliDateFormatStyle, NepaliDateLocale, NepaliDatePickerLang
+from nepali_calendar_utils.data.nepali_date_locale import NameFormat, NepaliDateFormatStyle, NepaliDateLocale, NepaliCalendarUtilsLang
 
 class TestNepaliDateConverter(unittest.TestCase):
     def setUp(self):
@@ -768,20 +768,20 @@ class TestNepaliDateConverter(unittest.TestCase):
 
     def test_format_nepali_date_random_date_get_formatted_date_in_string_by_locale(self):
         english_locale = NepaliDateLocale(
-            language=NepaliDatePickerLang.ENGLISH,
+            language=NepaliCalendarUtilsLang.ENGLISH,
             date_format=NepaliDateFormatStyle.FULL,
             week_day_name=NameFormat.FULL,
             month_name=NameFormat.FULL
         )
 
         nepali_locale = NepaliDateLocale(
-            language=NepaliDatePickerLang.NEPALI,
+            language=NepaliCalendarUtilsLang.NEPALI,
             date_format=NepaliDateFormatStyle.MEDIUM,
             month_name=NameFormat.FULL
         )
 
         full_format_nepali_locale = NepaliDateLocale(
-            language=NepaliDatePickerLang.NEPALI,
+            language=NepaliCalendarUtilsLang.NEPALI,
             date_format=NepaliDateFormatStyle.FULL,
             week_day_name=NameFormat.FULL,
             month_name=NameFormat.FULL
@@ -811,28 +811,28 @@ class TestNepaliDateConverter(unittest.TestCase):
         custom_calendar = date_converter.today_nepali_calendar
 
         week_day_name_in_english = NepaliDateConverter.get_weekday_name(
-            day_of_week=custom_calendar.day_of_week, format=NameFormat.FULL, language=NepaliDatePickerLang.ENGLISH
+            day_of_week=custom_calendar.day_of_week, format=NameFormat.FULL, language=NepaliCalendarUtilsLang.ENGLISH
         )
         full_week_day_name_in_nepali = NepaliDateConverter.get_weekday_name(
-            day_of_week=custom_calendar.day_of_week, format=NameFormat.FULL, language=NepaliDatePickerLang.NEPALI
+            day_of_week=custom_calendar.day_of_week, format=NameFormat.FULL, language=NepaliCalendarUtilsLang.NEPALI
         )
         medium_week_day_name_in_nepali = NepaliDateConverter.get_weekday_name(
-            day_of_week=custom_calendar.day_of_week, format=NameFormat.MEDIUM, language=NepaliDatePickerLang.NEPALI
+            day_of_week=custom_calendar.day_of_week, format=NameFormat.MEDIUM, language=NepaliCalendarUtilsLang.NEPALI
         )
 
         month_name_in_english = NepaliDateConverter.get_month_name(
-            month=custom_calendar.month, format=NameFormat.FULL, language=NepaliDatePickerLang.ENGLISH
+            month=custom_calendar.month, format=NameFormat.FULL, language=NepaliCalendarUtilsLang.ENGLISH
         )
         month_name_in_nepali = NepaliDateConverter.get_month_name(
-            month=custom_calendar.month, format=NameFormat.FULL, language=NepaliDatePickerLang.NEPALI
+            month=custom_calendar.month, format=NameFormat.FULL, language=NepaliCalendarUtilsLang.NEPALI
         )
         short_month_name_in_nepali = NepaliDateConverter.get_month_name(
-            month=custom_calendar.month, format=NameFormat.SHORT, language=NepaliDatePickerLang.NEPALI
+            month=custom_calendar.month, format=NameFormat.SHORT, language=NepaliCalendarUtilsLang.NEPALI
         )
 
         day_in_nepali = NepaliDateConverter.convert_to_nepali_number(str(custom_calendar.day_of_month))
         month_in_nepali = NepaliDateConverter.convert_to_nepali_number(str(custom_calendar.month))
-        year_in_nepali = NepaliDateConverter.localize_number(str(custom_calendar.year), NepaliDatePickerLang.NEPALI)
+        year_in_nepali = NepaliDateConverter.localize_number(str(custom_calendar.year), NepaliCalendarUtilsLang.NEPALI)
 
         english_locale = NepaliDateLocale()
 
@@ -842,7 +842,7 @@ class TestNepaliDateConverter(unittest.TestCase):
         self.assertEqual(correct_formatted_date_in_english, to_test_formatted_date_in_english)
 
         full_nepali_locale = NepaliDateLocale(
-            language=NepaliDatePickerLang.NEPALI,
+            language=NepaliCalendarUtilsLang.NEPALI,
             date_format=NepaliDateFormatStyle.FULL
         )
         correct_full_nepali_formatted_date = f"{full_week_day_name_in_nepali}, {month_name_in_nepali} {day_in_nepali}, {year_in_nepali}"
@@ -851,7 +851,7 @@ class TestNepaliDateConverter(unittest.TestCase):
         self.assertEqual(correct_full_nepali_formatted_date, to_test_full_nepali_formatted_date)
 
         mix_nepali_locale = NepaliDateLocale(
-            language=NepaliDatePickerLang.NEPALI,
+            language=NepaliCalendarUtilsLang.NEPALI,
             date_format=NepaliDateFormatStyle.FULL,
             week_day_name=NameFormat.MEDIUM,
             month_name=NameFormat.SHORT
@@ -862,11 +862,11 @@ class TestNepaliDateConverter(unittest.TestCase):
         self.assertEqual(correct_mix_nepali_formatted_date, to_test_mix_nepali_formatted_date)
 
         day_in_nepali_with_leading_zero = NepaliDateConverter.convert_to_nepali_number(str(custom_calendar.day_of_month).zfill(2))
-        month_in_nepali_with_leading_zero = NepaliDateConverter.localize_number(str(custom_calendar.month).zfill(2), NepaliDatePickerLang.NEPALI)
+        month_in_nepali_with_leading_zero = NepaliDateConverter.localize_number(str(custom_calendar.month).zfill(2), NepaliCalendarUtilsLang.NEPALI)
 
         compat_year = year_in_nepali[2:4]  # Alternatively, year_in_nepali[-2:]
         compat_nepali_locale = NepaliDateLocale(
-            language=NepaliDatePickerLang.NEPALI,
+            language=NepaliCalendarUtilsLang.NEPALI,
             date_format=NepaliDateFormatStyle.COMPACT_YMD
         )
         correct_compat_nepali_formatted_date = f"{compat_year}/{month_in_nepali_with_leading_zero}/{day_in_nepali_with_leading_zero}"
@@ -877,20 +877,20 @@ class TestNepaliDateConverter(unittest.TestCase):
 
     def test_format_english_date_random_date_get_formatted_date_in_string_by_locale(self):
         english_locale = NepaliDateLocale(
-            language=NepaliDatePickerLang.ENGLISH,
+            language=NepaliCalendarUtilsLang.ENGLISH,
             date_format=NepaliDateFormatStyle.FULL,
             week_day_name=NameFormat.FULL,
             month_name=NameFormat.FULL
         )
 
         nepali_locale = NepaliDateLocale(
-            language=NepaliDatePickerLang.NEPALI,
+            language=NepaliCalendarUtilsLang.NEPALI,
             date_format=NepaliDateFormatStyle.MEDIUM,
             month_name=NameFormat.FULL
         )
 
         full_format_nepali_locale = NepaliDateLocale(
-            language=NepaliDatePickerLang.NEPALI,
+            language=NepaliCalendarUtilsLang.NEPALI,
             date_format=NepaliDateFormatStyle.FULL,
             week_day_name=NameFormat.FULL,
             month_name=NameFormat.FULL
@@ -924,28 +924,28 @@ class TestNepaliDateConverter(unittest.TestCase):
         )
 
         week_day_name_in_english = NepaliDateConverter.get_weekday_name(
-            day_of_week=custom_calendar.day_of_week, format=NameFormat.FULL, language=NepaliDatePickerLang.ENGLISH
+            day_of_week=custom_calendar.day_of_week, format=NameFormat.FULL, language=NepaliCalendarUtilsLang.ENGLISH
         )
         full_week_day_name_in_nepali = NepaliDateConverter.get_weekday_name(
-            day_of_week=custom_calendar.day_of_week, format=NameFormat.FULL, language=NepaliDatePickerLang.NEPALI
+            day_of_week=custom_calendar.day_of_week, format=NameFormat.FULL, language=NepaliCalendarUtilsLang.NEPALI
         )
         medium_week_day_name_in_nepali = NepaliDateConverter.get_weekday_name(
-            day_of_week=custom_calendar.day_of_week, format=NameFormat.MEDIUM, language=NepaliDatePickerLang.NEPALI
+            day_of_week=custom_calendar.day_of_week, format=NameFormat.MEDIUM, language=NepaliCalendarUtilsLang.NEPALI
         )
 
         month_name_in_english = NepaliDateConverter.get_english_month_name(
-            month=custom_calendar.month, format=NameFormat.FULL, language=NepaliDatePickerLang.ENGLISH
+            month=custom_calendar.month, format=NameFormat.FULL, language=NepaliCalendarUtilsLang.ENGLISH
         )
         month_name_in_nepali = NepaliDateConverter.get_english_month_name(
-            month=custom_calendar.month, format=NameFormat.FULL, language=NepaliDatePickerLang.NEPALI
+            month=custom_calendar.month, format=NameFormat.FULL, language=NepaliCalendarUtilsLang.NEPALI
         )
         short_month_name_in_nepali = NepaliDateConverter.get_english_month_name(
-            month=custom_calendar.month, format=NameFormat.SHORT, language=NepaliDatePickerLang.NEPALI
+            month=custom_calendar.month, format=NameFormat.SHORT, language=NepaliCalendarUtilsLang.NEPALI
         )
 
         day_in_nepali = NepaliDateConverter.convert_to_nepali_number(str(custom_calendar.day_of_month))
         month_in_nepali = NepaliDateConverter.convert_to_nepali_number(str(custom_calendar.month))
-        year_in_nepali = NepaliDateConverter.localize_number(str(custom_calendar.year), NepaliDatePickerLang.NEPALI)
+        year_in_nepali = NepaliDateConverter.localize_number(str(custom_calendar.year), NepaliCalendarUtilsLang.NEPALI)
 
         english_locale = NepaliDateLocale()
 
@@ -955,7 +955,7 @@ class TestNepaliDateConverter(unittest.TestCase):
         self.assertEqual(correct_formatted_date_in_english, to_test_formatted_date_in_english)
 
         full_nepali_locale = NepaliDateLocale(
-            language=NepaliDatePickerLang.NEPALI,
+            language=NepaliCalendarUtilsLang.NEPALI,
             date_format=NepaliDateFormatStyle.FULL
         )
         correct_full_nepali_formatted_date = f"{full_week_day_name_in_nepali}, {month_name_in_nepali} {day_in_nepali}, {year_in_nepali}"
@@ -964,7 +964,7 @@ class TestNepaliDateConverter(unittest.TestCase):
         self.assertEqual(correct_full_nepali_formatted_date, to_test_full_nepali_formatted_date)
 
         mix_nepali_locale = NepaliDateLocale(
-            language=NepaliDatePickerLang.NEPALI,
+            language=NepaliCalendarUtilsLang.NEPALI,
             date_format=NepaliDateFormatStyle.FULL,
             week_day_name=NameFormat.MEDIUM,
             month_name=NameFormat.SHORT
@@ -975,11 +975,11 @@ class TestNepaliDateConverter(unittest.TestCase):
         self.assertEqual(correct_mix_nepali_formatted_date, to_test_mix_nepali_formatted_date)
 
         day_in_nepali_with_leading_zero = NepaliDateConverter.convert_to_nepali_number(str(custom_calendar.day_of_month).zfill(2))
-        month_in_nepali_with_leading_zero = NepaliDateConverter.localize_number(str(custom_calendar.month).zfill(2), NepaliDatePickerLang.NEPALI)
+        month_in_nepali_with_leading_zero = NepaliDateConverter.localize_number(str(custom_calendar.month).zfill(2), NepaliCalendarUtilsLang.NEPALI)
 
         compat_year = year_in_nepali[2:4]
         compat_nepali_locale = NepaliDateLocale(
-            language=NepaliDatePickerLang.NEPALI,
+            language=NepaliCalendarUtilsLang.NEPALI,
             date_format=NepaliDateFormatStyle.COMPACT_YMD
         )
         correct_compat_nepali_formatted_date = f"{compat_year}/{month_in_nepali_with_leading_zero}/{day_in_nepali_with_leading_zero}"

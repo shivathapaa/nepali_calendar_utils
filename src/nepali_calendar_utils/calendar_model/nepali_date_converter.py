@@ -1,7 +1,7 @@
 from nepali_calendar_utils.data.custom_calendar import *
 from nepali_calendar_utils.calendar_model.nepali_calendar_model import NepaliCalendarModel
 from datetime import date
-from nepali_calendar_utils.data.nepali_date_locale import NameFormat, NepaliDateLocale, NepaliDatePickerLang
+from nepali_calendar_utils.data.nepali_date_locale import NameFormat, NepaliDateLocale, NepaliCalendarUtilsLang
 
 class NepaliDateConverter:
     """A utility class for handling Nepali date conversions, formatting, and related operations."""
@@ -258,7 +258,7 @@ class NepaliDateConverter:
         )
 
     @staticmethod
-    def get_weekday_name(day_of_week: int, format=NameFormat.FULL, language: NepaliDatePickerLang=NepaliDatePickerLang.ENGLISH):
+    def get_weekday_name(day_of_week: int, format=NameFormat.FULL, language: NepaliCalendarUtilsLang=NepaliCalendarUtilsLang.ENGLISH):
         """
         Retrieves the name of a weekday in the specified format and language.
 
@@ -284,7 +284,7 @@ class NepaliDateConverter:
         }.get(format, weekdays.full)
 
     @staticmethod
-    def get_month_name(month: int, format=NameFormat.FULL, language=NepaliDatePickerLang.ENGLISH) -> str:
+    def get_month_name(month: int, format=NameFormat.FULL, language=NepaliCalendarUtilsLang.ENGLISH) -> str:
         """
         Retrieves the name of a Nepali month in the specified format and language.
 
@@ -305,7 +305,7 @@ class NepaliDateConverter:
         return NepaliCalendarModel.get_nepali_month_name(month, format, language)
 
     @staticmethod
-    def get_english_month_name(month: int, format=NameFormat.FULL, language=NepaliDatePickerLang.ENGLISH) -> str:
+    def get_english_month_name(month: int, format=NameFormat.FULL, language=NepaliCalendarUtilsLang.ENGLISH) -> str:
         """
         Retrieves the name of an English month in the specified format.
 
@@ -491,7 +491,7 @@ class NepaliDateConverter:
         return ''.join(new_delimiter if not char.isalnum() else char for char in text)
 
     @staticmethod
-    def localize_number(number: str, lang: NepaliDatePickerLang) -> str:
+    def localize_number(number: str, lang: NepaliCalendarUtilsLang) -> str:
         """
         Localizes a number string based on the provided locale.
 

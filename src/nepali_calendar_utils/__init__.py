@@ -8,7 +8,7 @@ __all__ = [
     "NepaliDateFormatStyle",
     "NepaliWeekdayName",
     "NepaliMonthName",
-    "NepaliDatePickerLang",
+    "NepaliCalendarUtilsLang",
     "NepaliDateLocale",
     "NepaliCalendarDefaults",
     "CustomCalendar",

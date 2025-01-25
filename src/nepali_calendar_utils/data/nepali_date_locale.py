@@ -106,7 +106,7 @@ english_months_in_nepali = [
     NepaliMonthName(short="डिसे", full="डिसेम्बर"),
 ]
 
-class NepaliDatePickerLang(Enum):
+class NepaliCalendarUtilsLang(Enum):
     ENGLISH = {
         "weekdays": english_weekdays,
         "months": nepali_months_in_english,
@@ -126,7 +126,7 @@ class NepaliDatePickerLang(Enum):
         
 @dataclass(frozen=True)
 class NepaliDateLocale:
-    language: NepaliDatePickerLang = NepaliDatePickerLang.ENGLISH
+    language: NepaliCalendarUtilsLang = NepaliCalendarUtilsLang.ENGLISH
     date_format: NepaliDateFormatStyle = NepaliDateFormatStyle.LONG
     week_day_name: NameFormat = NameFormat.FULL
     month_name: NameFormat = NameFormat.FULL
