@@ -36,7 +36,7 @@ Few of them are listed below:
 - `SimpleDate` and  `SimpleTime` - Simple representation of date and time.
 - `NepaliMonthCalendar` - Nepali Month Calendar which consists of the month details.
 - `NepaliDateLocale` - To control language, dateFormat, weekDayName, and monthName.
-- `NepaliDatePickerLang` - Set of supported language (English & Nepali for now).
+- `NepaliCalendarUtilsLang` - Set of supported language (English & Nepali for now).
 - `NepaliDateConverter` - Provides utilities for date conversions (english to nepali and vice versa), get formatted date(6), get time, get date-time in ISO 8601 format, calculate days in between two date, and many more.
 
 
@@ -57,7 +57,7 @@ from nepali_calendar_utils import *
 # OR, import only required functions
 from nepali_calendar_utils.data.custom_calendar import *
 from nepali_calendar_utils.calendar_model.nepali_date_converter import NepaliDateConverter
-from nepali_calendar_utils.data.nepali_date_locale import NameFormat, NepaliDateFormatStyle, NepaliDateLocale, NepaliDatePickerLang
+from nepali_calendar_utils.data.nepali_date_locale import NameFormat, NepaliDateFormatStyle, NepaliDateLocale, NepaliCalendarUtilsLang
 from nepali_calendar_utils.calendar_model.nepali_calendar_defaults import NepaliCalendarDefaults
 ```
 
@@ -234,13 +234,13 @@ formatted_nepali_date = NepaliDateConverter.format_nepali_datetime_to_iso(today_
 #### Get names of the weekdays, and month according to your choice
 ```python
 # Get names of the weekdays, and month according to your choice
-weekday = NepaliDateConverter.get_weekday_name(2, NameFormat.FULL, NepaliDatePickerLang.NEPALI) # returns "सोमबार"
-weekday_english = NepaliDateConverter.get_weekday_name(5, NameFormat.MEDIUM, NepaliDatePickerLang.ENGLISH) # returns Thu
+weekday = NepaliDateConverter.get_weekday_name(2, NameFormat.FULL, NepaliCalendarUtilsLang.NEPALI) # returns "सोमबार"
+weekday_english = NepaliDateConverter.get_weekday_name(5, NameFormat.MEDIUM, NepaliCalendarUtilsLang.ENGLISH) # returns Thu
 
-nepali_month_name = NepaliDateConverter.get_month_name(12, NameFormat.FULL, NepaliDatePickerLang.NEPALI) # returns "चैत"
-nepali_month_name_in_english = NepaliDateConverter.get_month_name(3, NameFormat.SHORT, NepaliDatePickerLang.ENGLISH) # returns Asa
+nepali_month_name = NepaliDateConverter.get_month_name(12, NameFormat.FULL, NepaliCalendarUtilsLang.NEPALI) # returns "चैत"
+nepali_month_name_in_english = NepaliDateConverter.get_month_name(3, NameFormat.SHORT, NepaliCalendarUtilsLang.ENGLISH) # returns Asa
 
-english_month_name = NepaliDateConverter.get_english_month_name(6, NameFormat.FULL, NepaliDatePickerLang.NEPALI) # returns "जुन"
+english_month_name = NepaliDateConverter.get_english_month_name(6, NameFormat.FULL, NepaliCalendarUtilsLang.NEPALI) # returns "जुन"
 ```
 
 #### Format date to make ready for UI
@@ -252,7 +252,7 @@ today_english_date = nepali_date_converter.today_english_calendar
 today_nepali_date = nepali_date_converter.today_nepali_calendar
 
 custom_locale_format = NepaliDateLocale(
-    language = NepaliDatePickerLang.NEPALI,
+    language = NepaliCalendarUtilsLang.NEPALI,
     date_format = NepaliDateFormatStyle.FULL,
     week_day_name = NameFormat.FULL,
     month_name = NameFormat.FULL
@@ -282,8 +282,8 @@ nepali_string = NepaliDateConverter.convert_to_nepali_number("Today is 2024") # 
 nepali_string_with_only_digits = NepaliDateConverter.convert_to_nepali_number("2024") # returns "२०२४"
 english_string = NepaliDateConverter.convert_to_english_number("२०२४ सोमबार") # returns "2024 सोमबार"
 
-localize_string_in_nepali = NepaliDateConverter.localize_number("Today is 2024", NepaliDatePickerLang.NEPALI) # returns "Today is २०२४"
-localize_string_in_english = NepaliDateConverter.localize_number("२०२४ सोमबार, Monday", NepaliDatePickerLang.ENGLISH) # returns "२०२४ सोमबार, Monday"
+localize_string_in_nepali = NepaliDateConverter.localize_number("Today is 2024", NepaliCalendarUtilsLang.NEPALI) # returns "Today is २०२४"
+localize_string_in_english = NepaliDateConverter.localize_number("२०२४ सोमबार, Monday", NepaliCalendarUtilsLang.ENGLISH) # returns "२०२४ सोमबार, Monday"
 ```
 
 #### Replace delimiter for displaying or saving as you prefer
