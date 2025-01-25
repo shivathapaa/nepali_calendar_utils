@@ -5,10 +5,10 @@ from nepali_calendar_utils.data.custom_calendar import *
 from datetime import date
 
 class DateConverters:
-    min_nepali_year = NepaliDatePickerDefaults.NepaliYearRange[0]
-    max_nepali_year = NepaliDatePickerDefaults.NepaliYearRange[-1]
-    min_english_year = NepaliDatePickerDefaults.EnglishYearRange[0]
-    max_english_year = NepaliDatePickerDefaults.EnglishYearRange[-1]
+    min_nepali_year = NepaliCalendarDefaults.NepaliYearRange[0]
+    max_nepali_year = NepaliCalendarDefaults.NepaliYearRange[-1]
+    min_english_year = NepaliCalendarDefaults.EnglishYearRange[0]
+    max_english_year = NepaliCalendarDefaults.EnglishYearRange[-1]
 
     @staticmethod
     def get_total_days_in_nepali_month(nepaliYYYY: int, nepaliMM: int) -> int:
@@ -179,12 +179,12 @@ class DateConverters:
         starting_english_date = (
             reference_date.englishDate
             if reference_date and reference_date.englishDate
-            else NepaliDatePickerDefaults.startingEnglishCalendar
+            else NepaliCalendarDefaults.startingEnglishCalendar
         )
         starting_nepali_calendar = (
             reference_date.nepaliDate
             if reference_date and reference_date.nepaliDate
-            else NepaliDatePickerDefaults.startingNepaliCalendar
+            else NepaliCalendarDefaults.startingNepaliCalendar
         )
 
         return starting_english_date, starting_nepali_calendar
@@ -381,7 +381,7 @@ class DateConverters:
 
         starting_nepali_calendar = (
             nepali_date_map.get(nepali_year - 1, {}).nepaliDate 
-            if nepali_date_map.get(nepali_year - 1) else NepaliDatePickerDefaults.startingNepaliCalendar
+            if nepali_date_map.get(nepali_year - 1) else NepaliCalendarDefaults.startingNepaliCalendar
         )
         
         day_offset = DateConverters.calculate_day_offset(starting_nepali_calendar.year, nepali_year, nepali_month)

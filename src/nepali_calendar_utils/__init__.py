@@ -10,7 +10,7 @@ __all__ = [
     "NepaliMonthName",
     "NepaliDatePickerLang",
     "NepaliDateLocale",
-    "NepaliDatePickerDefaults",
+    "NepaliCalendarDefaults",
     "CustomCalendar",
     "SimpleDate",
     "SimpleTime",

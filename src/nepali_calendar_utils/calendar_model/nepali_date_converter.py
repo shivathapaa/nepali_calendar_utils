@@ -20,14 +20,19 @@ class NepaliDateConverter:
         return self.calendar_model.today_english_calendar
 
     @property
+    def today_nepali_simple_date(self) -> SimpleDate:
+        """Returns today's date in the Nepali calendar as a SimpleDate."""
+        return self.calendar_model.today_nepali_calendar.to_simple_date()
+    
+    @property
     def today_english_simple_date(self) -> SimpleDate:
         """Returns today's date in the English calendar as a SimpleDate."""
         return self.calendar_model.today_english_simple_date
 
     @property
-    def current_time() -> SimpleTime:
+    def current_time(self) -> SimpleTime:
         """Returns the current time in Asia/Kathmandu timezone as a SimpleTime object."""
-        return NepaliCalendarModel.current_time
+        return self.calendar_model.current_time
 
     @staticmethod
     def convert_english_to_nepali(english_yyyy: int, english_mm: int, english_dd: int) -> CustomCalendar:
@@ -394,7 +399,7 @@ class NepaliDateConverter:
             print(iso_format)  # Outputs: "2024-09-09T09:00:15Z"
         """
         if simple_time is None:
-            simple_time = NepaliDateConverter.current_time()
+            simple_time = NepaliDateConverter().current_time
 
         return NepaliCalendarModel.format_nepali_date_time_to_iso_format(nepali_date, simple_time)
     
@@ -418,7 +423,7 @@ class NepaliDateConverter:
             print(iso_format)  # Outputs: "2024-09-09T09:00:15Z"
         """
         if simple_time is None:
-            simple_time = NepaliDateConverter.current_time()
+            simple_time = NepaliDateConverter().current_time
             
         return NepaliCalendarModel.format_english_date_nepali_time_to_iso_format(english_date, simple_time)
 
