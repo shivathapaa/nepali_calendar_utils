@@ -13,6 +13,11 @@ This Python package provides a collection of utilities for working with Nepali D
   <a href="https://github.com/shivathapaa/nepali_calendar_utils/blob/main/LICENSE">
     <img alt="license" src="https://img.shields.io/github/license/shivathapaa/nepali_calendar_utils?labelColor=F5DDD7&color=E0BFB7"/></a>
 </p>
+
+<br>
+
+> **Note:** If you want to implement date utilities and converters along with UI in your projects, then the library is available on Maven Central as _**io.github.shivathapaa/nepali-date-picker**_. KMP [Nepali Date Picker](https://github.com/shivathapaa/Nepali-Date-Picker) library provides UI for picking date and various utilities to work with Nepali Dates, and acts as a bridge between Nepali Calendar and Gregorian Calendar.
+
 <br>
 
 <details>
