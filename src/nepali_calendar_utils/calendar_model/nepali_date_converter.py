@@ -64,7 +64,7 @@ class NepaliDateConverter:
             CustomCalendar: Corresponding English date.
         """
         calendar_model = NepaliCalendarModel()
-        return calendar_model.convert_to_english_date(nepali_yyyy, nepali_mm, nepali_dd)
+        return calendar_model.convert_to_english_calendar(nepali_yyyy, nepali_mm, nepali_dd)
 
     @staticmethod
     def get_nepali_calendar(nepali_yyyy: int, nepali_mm: int, nepali_dd: int) -> CustomCalendar:

@@ -18,7 +18,7 @@ class NepaliCalendarModel:
     @property
     def today_english_calendar(self) -> CustomCalendar:
         today_nepali_calendar = NepaliCalendarModel().today_nepali_calendar
-        return DateConverters.convert_to_english_date(nepali_yyyy=today_nepali_calendar.year, nepali_mm=today_nepali_calendar.month, nepali_dd=today_nepali_calendar.day_of_month)
+        return DateConverters.convert_to_english_calendar(nepali_yyyy=today_nepali_calendar.year, nepali_mm=today_nepali_calendar.month, nepali_dd=today_nepali_calendar.day_of_month)
 
     @property
     def today_english_simple_date(self) -> SimpleDate:
@@ -51,8 +51,8 @@ class NepaliCalendarModel:
 
 
     @staticmethod
-    def convert_to_english_date(nepali_year, nepali_month, nepali_day) -> CustomCalendar:
-        return DateConverters.convert_to_english_date(nepali_year, nepali_month, nepali_day)
+    def convert_to_english_calendar(nepali_year, nepali_month, nepali_day) -> CustomCalendar:
+        return DateConverters.convert_to_english_calendar(nepali_year, nepali_month, nepali_day)
 
     @staticmethod
     def get_total_days_in_nepali_month(year, month):
@@ -225,7 +225,7 @@ class NepaliCalendarModel:
     @staticmethod
     def format_nepali_date_time_to_iso_format(nepali_date: SimpleDate, time: SimpleTime) -> str:
         kathmandu_tz = ZoneInfo("Asia/Kathmandu")
-        converted_english_date = NepaliCalendarModel.convert_to_english_date(
+        converted_english_date = NepaliCalendarModel.convert_to_english_calendar(
             nepali_date.year, nepali_date.month, nepali_date.day_of_month
         )
         local_datetime = datetime(
@@ -270,7 +270,7 @@ class NepaliCalendarModel:
             english_month=local_date_time.month,
             english_day=local_date_time.day
         )
-        english_calendar = NepaliCalendarModel.convert_to_english_date(
+        english_calendar = NepaliCalendarModel.convert_to_english_calendar(
             nepali_year=nepali_calendar.year,
             nepali_month=nepali_calendar.month,
             nepali_day=nepali_calendar.day_of_month

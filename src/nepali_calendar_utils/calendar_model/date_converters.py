@@ -96,7 +96,7 @@ class DateConverters:
         )
         
     @staticmethod
-    def convert_to_english_date(nepali_yyyy: int, nepali_mm: int, nepali_dd: int) -> CustomCalendar:
+    def convert_to_english_calendar(nepali_yyyy: int, nepali_mm: int, nepali_dd: int) -> CustomCalendar:
         if not DateConverters.is_nepali_calendar_in_conversion_range(nepali_yyyy, nepali_mm, nepali_dd):
             raise ValueError(f"Out of Range: Nepali year {nepali_yyyy} is out of range to convert.")
 
