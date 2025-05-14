@@ -1146,6 +1146,170 @@ class TestNepaliDateConverter(unittest.TestCase):
         corrected_formatted_time_with_space = "09 45 AM"
         self.assertEqual(corrected_formatted_time_with_space, formatted_time_with_space)
 
+    
+    def test_format_nepali_datetime_full_pattern_returns_correct_format(self):
+        test_calendar = NepaliDateConverter.get_nepali_calendar(2081, 5, 24)
+        test_time = SimpleTime(14, 45, 15, 123000000)
+
+        def check(pattern, expected, lang=NepaliCalendarUtilsLang.NEPALI):
+            result = NepaliDateConverter.format_nepali_date_time_by_unicode_pattern(pattern, test_calendar, test_time, lang)
+            self.assertEqual(expected, result, f"Pattern: {pattern}")
+
+        check("yyyy", "२०८१")
+        check("yy", "८१")
+        check("MMMM", "भदौ")
+        check("MMM", "भ")
+        check("MM", "०५")
+        check("M", "५")
+        check("dd", "२४")
+        check("d", "२४")
+        check("D", "१५०")
+        check("w", "२३")
+
+        check("EEEE", "Monday", lang=NepaliCalendarUtilsLang.ENGLISH)
+        check("EEEE", "सोमबार")
+        check("E", "सोम")
+        check("EEEEE", "सो")
+
+        check("ee", "०२")
+        check("e", "२")
+
+        check("HH", "१४")
+        check("H", "१४")
+        check("hh", "०२")
+        check("h", "२")
+        check("mm", "४५")
+        check("m", "४५")
+        check("ss", "१५")
+        check("s", "१५")
+
+        check("SSSS", "१२३०")
+        check("SSS", "१२३")
+        check("SS", "१२")
+        check("S", "१")
+
+        check("a", "दिउँसो")
+        check("A", "दिउँसो")
+
+        check("yyyy-MM-dd E a hh:mm:ss", "२०८१-०५-२४ सोम दिउँसो ०२:४५:१५")
+
+    def test_format_english_datetime_full_pattern_returns_correct_format(self):
+        test_calendar = NepaliDateConverter.get_nepali_calendar(2081, 5, 24)
+        test_time = SimpleTime(14, 45, 15, 123000000)
+
+        def check(pattern, expected):
+            result = NepaliDateConverter.format_english_date_time_by_unicode_pattern(pattern, test_calendar, test_time)
+            self.assertEqual(expected, result, f"Pattern: {pattern}")
+
+        check("yyyy", "2081")
+        check("yy", "81")
+        check("MMMM", "May")
+        check("MMM", "May")
+        check("MM", "05")
+        check("M", "5")
+        check("dd", "24")
+        check("d", "24")
+        check("D", "150")
+        check("w", "23")
+
+        check("EEEE", "Monday")
+        check("E", "Mon")
+        check("EEEEE", "M")
+
+        check("ee", "02")
+        check("e", "2")
+
+        check("HH", "14")
+        check("H", "14")
+        check("hh", "02")
+        check("h", "2")
+        check("mm", "45")
+        check("m", "45")
+        check("ss", "15")
+        check("s", "15")
+
+        check("SSSS", "1230")
+        check("SSS", "123")
+        check("SS", "12")
+        check("S", "1")
+
+        check("a", "pm")
+        check("A", "PM")
+
+        check("yyyy-MM-dd E A hh:mm:ss", "2081-05-24 Mon PM 02:45:15")
+
+    def test_format_datetime_midnight_and_end_of_day_correct_format(self):
+        calendar = NepaliDateConverter.get_nepali_calendar(2081, 1, 1)
+
+        midnight = SimpleTime(0, 0, 0, 0)
+        end_of_day = SimpleTime(23, 59, 59, 999000000)
+
+        def check(time, expected):
+            result = NepaliDateConverter.format_english_date_time_by_unicode_pattern("HH:mm:ss.SSS a", calendar, time)
+            self.assertEqual(expected, result)
+
+        check(midnight, "00:00:00.000 am")
+        check(end_of_day, "23:59:59.999 pm")
+
+    def test_format_datetime_empty_pattern_returns_empty_string(self):
+        calendar = NepaliDateConverter.get_nepali_calendar(2081, 1, 1)
+        result = NepaliDateConverter.format_english_date_time_by_unicode_pattern("", calendar)
+        self.assertEqual("", result)
+
+    def test_format_datetime_unsupported_tokens_ignores_them(self):
+        calendar = NepaliDateConverter.get_nepali_calendar(2081, 1, 1)
+        pattern = "yyyy-MM-XX HH:mm:ss ??"
+        result = NepaliDateConverter.format_english_date_time_by_unicode_pattern(pattern, calendar, SimpleTime(10, 30, 0, 0))
+        self.assertEqual("2081-01-XX 10:30:00 ??", result)
+
+    def test_format_datetime_all_tokens_mixed_returns_complete_format(self):
+        calendar = NepaliDateConverter.get_nepali_calendar(2081, 5, 24)
+        time = SimpleTime(14, 45, 15, 123000000)
+        pattern = "yyyy yy MMMM MMM MM M dd d D EEEE E EEEEE ee e w HH H hh h mm m ss s SSSS SSS SS S a A"
+        expected = "2081 81 May May 05 5 24 24 150 Monday Mon M 02 2 23 14 14 02 2 45 45 15 15 1230 123 12 1 pm PM"
+
+        result = NepaliDateConverter.format_english_date_time_by_unicode_pattern(pattern, calendar, time)
+        self.assertEqual(expected, result)
+
+    def test_format_nepali_datetime_all_tokens_mixed_returns_complete_format(self):
+        calendar = NepaliDateConverter.get_nepali_calendar(2081, 5, 24)
+        time = SimpleTime(14, 45, 15, 123000000)
+        pattern = "yyyy yy MMMM MMM MM M dd d D EEEE E EEEEE ee e w HH H hh h mm m ss s SSSS SSS SS S a A"
+        expected = "२०८१ ८१ भदौ भ ०५ ५ २४ २४ १५० सोमबार सोम सो ०२ २ २३ १४ १४ ०२ २ ४५ ४५ १५ १५ १२३० १२३ १२ १ दिउँसो दिउँसो"
+
+        result = NepaliDateConverter.format_nepali_date_time_by_unicode_pattern(pattern, calendar, time)
+        self.assertEqual(expected, result)
+
+    def test_format_only_date_english_and_nepali(self):
+        calendar = NepaliDateConverter.get_nepali_calendar(2081, 5, 24)
+        en = NepaliDateConverter.format_english_date_time_by_unicode_pattern("yyyy-MM-dd", calendar)
+        np = NepaliDateConverter.format_nepali_date_time_by_unicode_pattern("yyyy-MM-dd", calendar, language=NepaliCalendarUtilsLang.NEPALI)
+
+        self.assertEqual("2081-05-24", en)
+        self.assertEqual("२०८१-०५-२४", np)
+
+    def test_format_only_time_am_pm_language_sensitive(self):
+        morning = SimpleTime(9, 5, 3, 45000000)
+        night = SimpleTime(22, 30, 0, 0)
+
+        self.assertEqual("09:05:03 am", NepaliDateConverter.format_time_by_unicode_pattern("hh:mm:ss a", morning, NepaliCalendarUtilsLang.ENGLISH))
+        self.assertEqual("१०:३०:०० राति", NepaliDateConverter.format_time_by_unicode_pattern("hh:mm:ss a", night, NepaliCalendarUtilsLang.NEPALI))
+
+    def test_format_ampm_language_difference(self):
+        morning = SimpleTime(5, 0, 0, 0)
+        evening = SimpleTime(18, 0, 0, 0)
+
+        self.assertEqual("am", NepaliDateConverter.format_time_by_unicode_pattern("a", morning, NepaliCalendarUtilsLang.ENGLISH))
+        self.assertEqual("pm", NepaliDateConverter.format_time_by_unicode_pattern("a", evening, NepaliCalendarUtilsLang.ENGLISH))
+
+        self.assertEqual("बिहान", NepaliDateConverter.format_time_by_unicode_pattern("a", morning, NepaliCalendarUtilsLang.NEPALI))
+        self.assertEqual("साँझ", NepaliDateConverter.format_time_by_unicode_pattern("a", evening, NepaliCalendarUtilsLang.NEPALI))
+
+        self.assertEqual("AM", NepaliDateConverter.format_time_by_unicode_pattern("A", morning, NepaliCalendarUtilsLang.ENGLISH))
+        self.assertEqual("PM", NepaliDateConverter.format_time_by_unicode_pattern("A", evening, NepaliCalendarUtilsLang.ENGLISH))
+
+        self.assertEqual("बिहान", NepaliDateConverter.format_time_by_unicode_pattern("A", morning, NepaliCalendarUtilsLang.NEPALI))
+        self.assertEqual("साँझ", NepaliDateConverter.format_time_by_unicode_pattern("A", evening, NepaliCalendarUtilsLang.NEPALI))
 
 if __name__ == "__main__":
     unittest.main()
