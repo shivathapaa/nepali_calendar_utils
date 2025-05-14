@@ -11,7 +11,7 @@ maintainers = [{name = "Shiva Thapa", email = "query.shivathapaa.dev@gmail.com"}
 readme = "README.md"
 license = "MPL-2.0"
 license-files = ["LICEN[CS]E*"]
-requires-python = ">=3.6"
+requires-python = ">=3.7"
 dependencies = []
 keywords = ["nepali date", "date utilities", "nepali calendar", "nepali date utilities"]
 classifiers = [
