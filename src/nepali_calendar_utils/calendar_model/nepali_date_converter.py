@@ -480,6 +480,320 @@ class NepaliDateConverter:
             print(custom_english_dt)
         """
         return NepaliCalendarModel.get_english_date_nepali_time_from_iso_format(iso_date_time)
+        
+    @staticmethod
+    def format_time_by_unicode_pattern(
+        unicode_pattern: str,
+        time: SimpleTime,
+        language: NepaliCalendarUtilsLang = NepaliCalendarUtilsLang.ENGLISH
+    ) -> str:
+        """
+        Formats a time based on the specified Unicode pattern and language preferences.
+
+        Args:
+            time (SimpleTime): An object that holds the time details 
+                (hour, minute, second, nanosecond).
+            unicode_pattern (str): A string specifying the pattern to use for formatting 
+                the date and time. The pattern supports various placeholders like "HH", "hh", 
+                "mm", "ss", "SSS", "a", etc.
+            language (NepaliDatePickerLang): Specifies the language for formatting the 
+                date and time, including number localization and period labels (AM/PM).
+
+        Returns:
+            str: A string representing the formatted time according to the provided Unicode 
+            pattern and language preferences.
+
+        Supported Unicode pattern placeholders:
+            - `HH`: Hour in 24-hour format (00–23), zero-padded (e.g., "08" or "०८")
+            - `H`: Hour in 24-hour format, no padding (e.g., "8" or "८")
+            - `hh`: Hour in 12-hour format (01–12), zero-padded (e.g., "01" or "०१")
+            - `h`: Hour in 12-hour format, no padding (e.g., "1" or "१")
+            - `mm`: Minutes, two-digit (e.g., "05" or "०५")
+            - `m`: Minutes, no padding (e.g., "5" or "५")
+            - `ss`: Seconds, two-digit (e.g., "09" or "०९")
+            - `s`: Seconds, no padding (e.g., "9" or "९")
+            - `SSSS`: Four-digit nanosecond precision (e.g., "1234" or "१२३४")
+            - `SSS`: Millisecond precision (e.g., "123" or "१२३")
+            - `SS`: Two-digit fractional seconds (e.g., "12" or "१२")
+            - `S`: One-digit fractional second (e.g., "1" or "१")
+            - `a`: Lowercase AM/PM or localized period (e.g., "am" or "बिहान")
+            - `A`: Uppercase AM/PM or localized period (e.g., "AM" or "साँझ")
+
+        Example:
+            >>> time = SimpleTime(hour=15, minute=30, second=45, nanosecond=123000000)
+            >>> formatted_time = format_time_by_unicode_pattern(
+            ...     time=time,
+            ...     unicode_pattern="hh:mm:ss.SSS A",
+            ...     language=language
+            ... )
+            >>> # formatted_time: "03:30:45.123 PM"
+        """
+        calendar_model = NepaliCalendarModel()
+        return calendar_model.format_time_by_unicode_pattern(
+            unicode_pattern=unicode_pattern,
+            time=time,
+            language=language
+        )
+
+    @staticmethod
+    def format_english_date_by_unicode_pattern(
+        unicode_pattern: str,
+        calendar: CustomCalendar,
+        language: NepaliCalendarUtilsLang = NepaliCalendarUtilsLang.ENGLISH
+    ) -> str:
+        """
+        Formats an English date based on the specified Unicode pattern and language preferences.
+
+        Args:
+            unicode_pattern (str): A string specifying the pattern to use for formatting the date and time. 
+                The pattern supports various placeholders like "yyyy", "MM", "dd", "D", "w", "E", etc.
+            calendar (CustomCalendar): A custom calendar object representing the date.
+            language (NepaliDatePickerLang): Specifies the language for formatting, including number and text localization.
+
+        Returns:
+            str: A string representing the formatted date according to the provided Unicode pattern and language preferences.
+
+        Supported Unicode pattern placeholders:
+            - `yyyy`: Four-digit year (e.g., "2025" or "२०२५")
+            - `yy`: Two-digit year (e.g., "25" or "२५")
+            - `MMMM`: Full month name (e.g., "January" or "जनवरी")
+            - `MMM`: Abbreviated month name (e.g., "Jan" or "जन")
+            - `MM`: Two-digit month (e.g., "01" or "०१")
+            - `M`: Month number, no padding (e.g., "1" or "१")
+            - `dd`: Two-digit day of the month (e.g., "04" or "०४")
+            - `d`: Day of the month, no padding (e.g., "4" or "४")
+            - `D`: Day of the year (1–366) (e.g., "123" or "१२३")
+            - `w`: Week of the year (e.g., "23" or "२३")
+            - `EEEE`: Full weekday name (e.g., "Monday" or "सोमबार")
+            - `E`: Medium weekday name (e.g., "Mon" or "सोम")
+            - `EEEEE`: Short weekday name, if defined (e.g., "M" or "स")
+            - `ee`: Two-digit day of the week (e.g., "02" or "०२")
+            - `e`: Day of the week, no padding (e.g., "2" or "२")
+
+        Example:
+            >>> calendar = CustomCalendar(year=2025, month=5, day_of_month=14, day_of_week=3, ...)
+            >>> formatted_date = format_english_date_by_unicode_pattern(
+            ...     "yyyy-MM-dd EEEE",
+            ...     calendar,
+            ...     language=NepaliDatePickerLang.ENGLISH
+            ... )
+            >>> # formatted_date: "2025-05-14 Tuesday"
+        """
+        calendar_model = NepaliCalendarModel()
+        return calendar_model.format_english_date_by_unicode_pattern(
+            unicode_pattern=unicode_pattern,
+            calendar=calendar,
+            language=language
+        )
+
+    @staticmethod
+    def format_nepali_date_by_unicode_pattern(
+        unicode_pattern: str,
+        calendar: CustomCalendar,
+        language: NepaliCalendarModel = NepaliCalendarUtilsLang.NEPALI
+    ) -> str:
+        """
+        Formats a Nepali date based on the specified Unicode pattern and language preferences.
+
+        Args:
+            unicode_pattern (str): A string specifying the pattern to use for formatting the date and time.
+                The pattern supports various placeholders like "yyyy", "MM", "dd", "D", "E", "ee", etc.
+            calendar (CustomCalendar): A custom calendar object representing the Nepali date.
+            language (NepaliDatePickerLang, optional): Language preference for formatting.
+                Defaults to NepaliDatePickerLang.NEPALI, which uses Nepali names for months and weekdays.
+
+        Returns:
+            str: A string representing the formatted date and time according to the specified Unicode pattern and language.
+
+        Supported Unicode pattern placeholders:
+            - `yyyy`: Four-digit year (e.g., "2025" or "२०२५")
+            - `yy`: Two-digit year (e.g., "25" or "२५")
+            - `MMMM`: Full month name (e.g., "Baisakh" or "बैशाख")
+            - `MMM`: Abbreviated month name (e.g., "Bai" or "बै")
+            - `MM`: Two-digit month (e.g., "01" or "०१")
+            - `M`: Month number, no padding (e.g., "1" or "१")
+            - `dd`: Two-digit day of the month (e.g., "04" or "०४")
+            - `d`: Day of the month, no padding (e.g., "4" or "४")
+            - `D`: Day of the year (1–366) (e.g., "123" or "१२३")
+            - `w`: Week of the year (e.g., "23" or "२३")
+            - `EEEE`: Full weekday name (e.g., "Monday" or "सोमबार")
+            - `E`: Medium weekday name (e.g., "Mon" or "सोम")
+            - `EEEEE`: Short weekday name, if defined (e.g., "M" or "स")
+            - `ee`: Two-digit day of the week (e.g., "02" or "०२")
+            - `e`: Day of the week, no padding (e.g., "2" or "२")
+
+        Example:
+            >>> calendar = CustomCalendar(year=2025, month=5, day_of_month=14, day_of_week=3, ...)
+            >>> formatted_date = format_nepali_date_by_unicode_pattern(
+            ...     "yyyy-MM-dd EEEE",
+            ...     calendar,
+            ...     language=NepaliDatePickerLang.ENGLISH
+            ... )
+            >>> # formatted_date: "2025-05-14 Tuesday"
+        """
+        calendar_model = NepaliCalendarModel()
+        return calendar_model.format_nepali_date_by_unicode_pattern(
+            unicode_pattern=unicode_pattern,
+            calendar=calendar,
+            language=language
+        )
+
+    @staticmethod
+    def format_english_date_time_by_unicode_pattern(
+        unicode_pattern: str,
+        calendar: CustomCalendar,
+        time: SimpleTime = None,
+        language: NepaliCalendarUtilsLang = NepaliCalendarUtilsLang.ENGLISH
+    ) -> str:
+        """
+        Formats an English date and time based on the specified Unicode pattern and language preferences.
+
+        Args:
+            unicode_pattern (str): A string specifying the pattern to use for formatting the date and time.
+                The pattern supports placeholders like "yyyy", "MM", "dd", "hh", "mm", "ss", etc.
+            calendar (CustomCalendar): A custom calendar object representing the date.
+            time (SimpleTime, optional): Time information (hour, minute, second, nanosecond).
+                If omitted, the formatted string includes only the date.
+            language (NepaliDatePickerLang, optional): Language preference for formatting.
+                Defaults to NepaliDatePickerLang.ENGLISH, which uses English month and weekday names.
+
+        Returns:
+            str: A string representing the formatted date and time based on the Unicode pattern and language.
+
+        Supported Unicode pattern placeholders:
+            Date:
+                - `yyyy`: Four-digit year (e.g., "2025" or "२०२५")
+                - `yy`: Two-digit year (e.g., "25" or "२५")
+                - `MMMM`: Full month name (e.g., "January" or "जनवरी")
+                - `MMM`: Abbreviated month name (e.g., "Jan" or "जन")
+                - `MM`: Two-digit month (e.g., "01" or "०१")
+                - `M`: Month number, no padding (e.g., "1" or "१")
+                - `dd`: Two-digit day of the month (e.g., "04" or "०४")
+                - `d`: Day of the month, no padding (e.g., "4" or "४")
+                - `D`: Day of the year (1–366) (e.g., "123" or "१२३")
+                - `w`: Week of the year (e.g., "23" or "२३")
+                - `EEEE`: Full weekday name (e.g., "Monday" or "सोमबार")
+                - `E`: Medium weekday name (e.g., "Mon" or "सोम")
+                - `EEEEE`: Short weekday name, if defined (e.g., "M" or "स")
+                - `ee`: Two-digit day of week (e.g., "02" or "०२")
+                - `e`: Day of week, no padding (e.g., "2" or "२")
+
+            Time:
+                - `HH`: Hour in 24-hour format (00–23) (e.g., "08" or "०८")
+                - `H`: Hour in 24-hour format, no padding (e.g., "8" or "८")
+                - `hh`: Hour in 12-hour format (01–12) (e.g., "01" or "०१")
+                - `h`: Hour in 12-hour format, no padding (e.g., "1" or "१")
+                - `mm`: Minutes, two-digit (e.g., "05" or "०५")
+                - `m`: Minutes, no padding (e.g., "5" or "५")
+                - `ss`: Seconds, two-digit (e.g., "09" or "०९")
+                - `s`: Seconds, no padding (e.g., "9" or "९")
+                - `SSSS`: Nanosecond precision (four digits, e.g., "1234" or "१२३४")
+                - `SSS`: Milliseconds (e.g., "123" or "१२३")
+                - `SS`: Two-digit fractional seconds (e.g., "12" or "१२")
+                - `S`: One-digit fractional second (e.g., "1" or "१")
+
+            Period:
+                - `a`: Lowercase AM/PM or localized form (e.g., "am" or "बिहान")
+                - `A`: Uppercase AM/PM or localized form (e.g., "AM" or "साँझ")
+
+        Example:
+            >>> calendar = CustomCalendar(year=2025, month=5, day_of_month=14, day_of_week=3, ...)
+        >>> time = SimpleTime(hour=15, minute=30, second=45, nanosecond=123)
+        >>> formatted = format_english_date_time_by_unicode_pattern(
+        ...     "yyyy-MM-dd EEEE hh:mm:ss a",
+        ...     calendar,
+        ...     time
+        ... )
+        >>> # formatted: "2025-05-14 Tuesday 03:30:45 PM"
+    """
+        calendar_model = NepaliCalendarModel()
+        return calendar_model.format_english_datetime_by_unicode_pattern(
+            unicode_pattern=unicode_pattern,
+            calendar=calendar,
+            time=time,
+            language=language
+        )
+
+    @staticmethod
+    def format_nepali_date_time_by_unicode_pattern(
+        unicode_pattern: str,
+        calendar: CustomCalendar,
+        time: SimpleTime = None,
+        language: NepaliCalendarUtilsLang = NepaliCalendarUtilsLang.NEPALI
+    ) -> str:
+        """
+        Formats a Nepali date and optional time using a Unicode-like pattern and language preferences.
+
+        Args:
+            calendar (CustomCalendar): A Nepali calendar date to format.
+            time (SimpleTime, optional): Optional time with hour, minute, second, and nanosecond.
+                                        If not provided, only the date is included in the output.
+            unicode_pattern (str): A formatting pattern string using placeholders like "yyyy", "MM", "dd", "hh", "mm", etc.
+            language (NepaliDatePickerLang, optional): Language used to localize names like months and weekdays.
+                                            Defaults to NepaliDatePickerLang.NEPALI.
+
+        Returns:
+            str: A formatted date/time string based on the provided pattern and localization.
+
+        Supported placeholders in `unicode_pattern`:
+
+        Date:
+            - yyyy: Four-digit year (e.g., "2025" or "२०२५")
+            - yy: Two-digit year (e.g., "25" or "२५")
+            - MMMM: Full month name (e.g., "Baisakh" or "बैशाख")
+            - MMM: Abbreviated month name (e.g., "Bai" or "बै")
+            - MM: Two-digit month (e.g., "01" or "०१")
+            - M: Month without padding (e.g., "1" or "१")
+            - dd: Two-digit day of month (e.g., "04" or "०४")
+            - d: Day without padding (e.g., "4" or "४")
+            - D: Day of year (1–366) (e.g., "123" or "१२३")
+            - w: Week of year (e.g., "23" or "२३")
+
+        Weekdays:
+            - EEEE: Full weekday name (e.g., "Monday" or "सोमबार")
+            - E: Medium weekday name (e.g., "Mon" or "सो")
+            - EEEEE: Shortest weekday (e.g., "M" or "स")
+            - ee: Two-digit day of week (e.g., "02" or "०२")
+            - e: Day of week without padding (e.g., "2" or "२")
+
+        Time:
+            - HH: 24-hour format, two digits (e.g., "08" or "०८")
+            - H: 24-hour format, no padding (e.g., "8" or "८")
+            - hh: 12-hour format, two digits (e.g., "01" or "०१")
+            - h: 12-hour format, no padding (e.g., "1" or "१")
+            - mm: Minutes, two digits (e.g., "05" or "०५")
+            - m: Minutes, no padding (e.g., "5" or "५")
+            - ss: Seconds, two digits (e.g., "09" or "०९")
+            - s: Seconds, no padding (e.g., "9" or "९")
+
+        Fractions:
+            - SSSS: Nanosecond precision (4 digits, e.g., "1234" or "१२३४")
+            - SSS: Millisecond precision (e.g., "123" or "१२३")
+            - SS: Hundredths (e.g., "12" or "१२")
+            - S: Tenths (e.g., "1" or "१")
+
+        Periods:
+            - a: Lowercase period (e.g., "am" or "बिहान")
+            - A: Uppercase period (e.g., "AM" or "साँझ")
+
+        Example:
+            >>> calendar = CustomCalendar(year=2025, month=5, day_of_month=14, day_of_week=3)
+            >>> time = SimpleTime(hour=15, minute=30, second=45, nanosecond=123_000_000)
+            >>> format_nepali_datetime_by_unicode_pattern(
+            ...     calendar,
+            ...     time,
+            ...     "yyyy-MM-dd EEEE hh:mm:ss.SSS a",
+            ...     language=NepaliDatePickerLang.ENGLISH
+            ... )
+            '2025-05-14 Tuesday 03:30:45.123 PM'
+        """
+        calendar_model = NepaliCalendarModel()
+        return calendar_model.format_nepali_datetime_by_unicode_pattern(
+            unicode_pattern=unicode_pattern,
+            calendar=calendar,
+            time=time,
+            language=language
+        )
 
     @staticmethod
     def compare_calendar_dates(date_to_compare_from: CustomCalendar, date_to_compare_to: CustomCalendar) -> int:

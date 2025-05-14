@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from nepali_calendar_utils.data.custom_calendar import *
@@ -284,6 +285,56 @@ class NepaliCalendarModel:
         return CustomDateTime(custom_calendar=english_calendar, simple_time=simple_nepali_time)
 
     @staticmethod
+    def format_time_by_unicode_pattern(unicode_pattern: str, time: SimpleTime, language: NepaliCalendarUtilsLang=NepaliCalendarUtilsLang.ENGLISH) -> str:
+        calendar_model = NepaliCalendarModel()
+        replacements = calendar_model.get_time_format_replacements(time, language)
+        return calendar_model.apply_replacements(unicode_pattern, replacements)
+
+    @staticmethod
+    def format_english_date_by_unicode_pattern(unicode_pattern: str, calendar: CustomCalendar, language: NepaliCalendarUtilsLang=NepaliCalendarUtilsLang.ENGLISH) -> str:
+        calendar_model = NepaliCalendarModel()
+        replacements = calendar_model.get_date_format_replacements(
+            calendar=calendar,
+            language=language,
+            on_get_month_names=lambda i: language.english_months[i]
+        )
+        return calendar_model.apply_replacements(unicode_pattern, replacements)
+
+    @staticmethod
+    def format_nepali_date_by_unicode_pattern(unicode_pattern: str, calendar: CustomCalendar, language: NepaliCalendarUtilsLang=NepaliCalendarUtilsLang.NEPALI) -> str:
+        calendar_model = NepaliCalendarModel()
+        replacements = calendar_model.get_date_format_replacements(
+            calendar=calendar,
+            language=language,
+            on_get_month_names=lambda i: language.months[i]
+        )
+        return calendar_model.apply_replacements(unicode_pattern, replacements)
+
+    @staticmethod
+    def format_english_datetime_by_unicode_pattern(unicode_pattern: str, calendar: CustomCalendar, time:SimpleTime=None, language: NepaliCalendarUtilsLang=NepaliCalendarUtilsLang.ENGLISH) -> str:
+        calendar_model = NepaliCalendarModel()
+        replacements = calendar_model.get_date_format_replacements(
+            calendar=calendar,
+            language=language,
+            on_get_month_names=lambda i: language.english_months[i]
+        )
+        if time is not None:
+            replacements.update(calendar_model.get_time_format_replacements(time, language))
+        return calendar_model.apply_replacements(unicode_pattern, replacements)
+
+    @staticmethod
+    def format_nepali_datetime_by_unicode_pattern(unicode_pattern: str, calendar: CustomCalendar, time:SimpleTime=None, language: NepaliCalendarUtilsLang=NepaliCalendarUtilsLang.NEPALI) -> str:
+        calendar_model = NepaliCalendarModel()
+        replacements = calendar_model.get_date_format_replacements(
+            calendar=calendar,
+            language=language,
+            on_get_month_names=lambda i: language.months[i]
+        )
+        if time is not None:
+            replacements.update(calendar_model.get_time_format_replacements(time, language))
+        return calendar_model.apply_replacements(unicode_pattern, replacements)
+
+    @staticmethod
     def compare_dates_custom(calendar: CustomCalendar, year, month, day_of_month):
         if calendar.year != year:
             return calendar.year - year
@@ -368,3 +419,102 @@ class NepaliCalendarModel:
         return ''.join(
             NepaliCalendarModel.NEPALI_TO_ENGLISH_DIGITS.get(char, char) for char in string
         )
+
+    @staticmethod
+    def get_time_format_replacements(time: SimpleTime, language: NepaliCalendarUtilsLang) -> dict[str, str]:
+        hour = time.hour
+        hour24 = str(hour)
+        hour12 = str(12 if hour == 0 else hour - 12 if hour > 12 else hour)
+        hour242_digit = hour24.zfill(2)
+        hour122_digit = hour12.zfill(2)
+
+        minute = str(time.minute)
+        minute2_digit = minute.zfill(2)
+        second = str(time.second)
+        second2_digit = second.zfill(2)
+
+        nano_str = str(time.nanosecond)[:1]
+        nano_str2_digit = str(time.nanosecond).zfill(2)[:2]
+        nano_str3_digit = str(time.nanosecond).zfill(3)[:3]
+        nano_str4_digit = str(time.nanosecond).zfill(4)[:4]
+        
+        calendarModel = NepaliCalendarModel()
+
+        if language == NepaliCalendarUtilsLang.NEPALI:
+            am_pm = calendarModel.get_nepali_am_pm(hour)
+            am_pm_lower = am_pm
+        else:
+            am_pm = "AM" if hour < 12 else "PM"
+            am_pm_lower = am_pm.lower()
+
+        return {
+            "HH": calendarModel.localize_number(hour242_digit, language),
+            "H": calendarModel.localize_number(hour24, language),
+            "hh": calendarModel.localize_number(hour122_digit, language),
+            "h": calendarModel.localize_number(hour12, language),
+            "mm": calendarModel.localize_number(minute2_digit, language),
+            "m": calendarModel.localize_number(minute, language),
+            "ss": calendarModel.localize_number(second2_digit, language),
+            "s": calendarModel.localize_number(second, language),
+            "SSSS": calendarModel.localize_number(nano_str4_digit, language),
+            "SSS": calendarModel.localize_number(nano_str3_digit, language),
+            "SS": calendarModel.localize_number(nano_str2_digit, language),
+            "S": calendarModel.localize_number(nano_str, language),
+            "a": am_pm_lower,
+            "A": am_pm
+        }
+
+    @staticmethod
+    def get_date_format_replacements(calendar: CustomCalendar, language: NepaliCalendarUtilsLang, on_get_month_names) -> dict[str, str]:
+        year_str = str(calendar.year)
+        short_year = year_str[-2:]
+        month_str = str(calendar.month)
+        month_str2_digit = month_str.zfill(2)
+        day_str = str(calendar.day_of_month)
+        day_str2_digit = day_str.zfill(2)
+        weekday_index = calendar.day_of_week - 1
+        weekday = language.weekdays[weekday_index]
+        weekday_str = str(calendar.day_of_week)
+        weekday_str2_digit = weekday_str.zfill(2)
+        week_of_the_year = str(calendar.week_of_year)
+        day_of_the_year = str(calendar.day_of_year)
+
+        month_name = on_get_month_names(calendar.month - 1)
+
+        calendarModel = NepaliCalendarModel()
+
+        return {
+            "yyyy": calendarModel.localize_number(year_str, language),
+            "yy": calendarModel.localize_number(short_year, language),
+            "MMMM": month_name.full,
+            "MMM": month_name.short,
+            "MM": calendarModel.localize_number(month_str2_digit, language),
+            "M": calendarModel.localize_number(month_str, language),
+            "dd": calendarModel.localize_number(day_str2_digit, language),
+            "d": calendarModel.localize_number(day_str, language),
+            "D": calendarModel.localize_number(day_of_the_year, language),
+            "EEEEE": weekday.short,
+            "EEEE": weekday.full,
+            "E": weekday.medium,
+            "ee": calendarModel.localize_number(weekday_str2_digit, language),
+            "e": calendarModel.localize_number(weekday_str, language),
+            "w": calendarModel.localize_number(week_of_the_year, language)
+        }
+
+    @staticmethod
+    def apply_replacements(unicode_pattern: str, replacements: dict[str, str]) -> str:
+        sorted_keys = sorted(replacements.keys(), key=len, reverse=True)
+        pattern_regex = re.compile("|".join(map(re.escape, sorted_keys)))
+
+        return pattern_regex.sub(lambda m: replacements.get(m.group(0), m.group(0)), unicode_pattern)
+    
+    @staticmethod
+    def get_nepali_am_pm(hour: int) -> str:
+        if 3 <= hour <= 11:
+            return "बिहान"
+        elif 12 <= hour <= 16:
+            return "दिउँसो"
+        elif 17 <= hour <= 19:
+            return "साँझ"
+        else:
+            return "राति"
