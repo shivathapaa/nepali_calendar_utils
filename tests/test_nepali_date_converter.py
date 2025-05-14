@@ -1011,15 +1011,15 @@ class TestNepaliDateConverter(unittest.TestCase):
 
     def test_format_time_to_iso_format_random_dates(self):
             nepali_date = SimpleDate(2081, 5, 24)
-            time = SimpleTime(14, 45, 15, 0)
+            time = SimpleTime(14, 45, 15, 123456789)
 
             nepali_date_iso_format = NepaliDateConverter.format_nepali_datetime_to_iso(nepali_date, time)
-            correct_nepali_date_iso_format = "2024-09-09T09:00:15Z"
+            correct_nepali_date_iso_format = "2024-09-09T09:00:15.123456Z"
             self.assertEqual(correct_nepali_date_iso_format, nepali_date_iso_format)
 
             english_date = SimpleDate(2024, 9, 9)
             english_date_iso_format = NepaliDateConverter.format_english_date_nepali_time_to_iso(english_date, time)
-            correct_english_date_iso_format = "2024-09-09T09:00:15Z"
+            correct_english_date_iso_format = "2024-09-09T09:00:15.123456Z"
             self.assertEqual(correct_english_date_iso_format, english_date_iso_format)
 
             self.assertEqual(nepali_date_iso_format, english_date_iso_format)
@@ -1035,6 +1035,97 @@ class TestNepaliDateConverter(unittest.TestCase):
         english_date_iso_format = NepaliDateConverter.format_english_date_nepali_time_to_iso(english_date, time)
 
         self.assertEqual(nepali_date_iso_format, english_date_iso_format)
+        
+    def test_convert_iso_to_nepali_calendar_and_time(self):
+        iso_string = "2024-09-09T09:00:15Z"
+        custom_datetime = NepaliDateConverter.get_nepali_date_time_from_iso_format(iso_string)
+        expected_calendar = NepaliDateConverter.get_nepali_calendar(2081, 5, 24)
+        expected_time = SimpleTime(14, 45, 15, 0)
+
+        self.assertEqual(expected_calendar, custom_datetime.custom_calendar)
+        self.assertEqual(expected_time, custom_datetime.simple_time)
+
+        iso_string2 = "2020-08-30T18:43:00.123456Z"
+        custom_datetime2 = NepaliDateConverter.get_nepali_date_time_from_iso_format(iso_string2)
+        expected_calendar2 = NepaliDateConverter.get_nepali_calendar(2077, 5, 15)
+        expected_time2 = SimpleTime(0, 28, 0, 123456000)
+
+        self.assertEqual(expected_calendar2, custom_datetime2.custom_calendar)
+        self.assertEqual(expected_time2, custom_datetime2.simple_time)
+        
+    def test_various_iso_patterns_to_nepali_calendar_and_time(self):
+        test_cases = [
+            ("2020-08-30T18:43:00Z", (2077, 5, 15), SimpleTime(0, 28, 0, 0)),
+            ("2020-08-30T18:43:00.502Z", (2077, 5, 15), SimpleTime(0, 28, 0, 502000000)),
+            ("2020-08-30T18:43:00.123456Z", (2077, 5, 15), SimpleTime(0, 28, 0, 123456000)),
+            ("2020-08-30T18:40:00+00:00", (2077, 5, 15), SimpleTime(0, 25, 0, 0)),
+            ("2020-08-30T18:40:00+00:00:00", (2077, 5, 15), SimpleTime(0, 25, 0, 0)),
+            ("2011-11-04", (2068, 7, 18), SimpleTime(0, 0, 0, 0)),
+            ("2011-11-04 00:05:23.283", (2068, 7, 18), SimpleTime(0, 5, 23, 283000000)),
+            ("2011-11-04 00:05:23.283+00:00", (2068, 7, 18), SimpleTime(5, 50, 23, nanosecond=283000000)),
+            ("2011-11-04T00:05:23+04:00", (2068, 7, 18), SimpleTime(1, 50, 23, 0)),
+        ]
+
+        for iso_string, (ny, nm, nd), expected_time in test_cases:
+            with self.subTest(iso_string=iso_string):
+                result = NepaliDateConverter.get_nepali_date_time_from_iso_format(iso_string)
+                expected_calendar = NepaliDateConverter.get_nepali_calendar(ny, nm, nd)
+                self.assertEqual(result.custom_calendar, expected_calendar)
+                self.assertEqual(result.simple_time, expected_time)
+
+
+    def test_convert_iso_to_english_calendar_and_nepali_time(self):
+        iso_string = "2024-09-09T09:00:15Z"
+        custom_datetime = NepaliDateConverter.get_english_date_nepali_time_from_iso_format(iso_string)
+
+        expected_nepali_calendar = NepaliDateConverter.get_nepali_calendar(2081, 5, 24)
+        expected_english_calendar = NepaliDateConverter.convert_nepali_to_english(
+            expected_nepali_calendar.year,
+            expected_nepali_calendar.month,
+            expected_nepali_calendar.day_of_month
+        )
+        expected_time = SimpleTime(14, 45, 15, 0)
+
+        self.assertEqual(expected_english_calendar, custom_datetime.custom_calendar)
+        self.assertEqual(expected_time, custom_datetime.simple_time)
+
+        iso_string2 = "2020-01-01T23:59:59.123456Z"
+        custom_datetime2 = NepaliDateConverter.get_english_date_nepali_time_from_iso_format(iso_string2)
+
+        expected_nepali_calendar2 = NepaliDateConverter.get_nepali_calendar(2076, 9, 17)
+        expected_english_calendar2 = NepaliDateConverter.convert_nepali_to_english(
+            expected_nepali_calendar2.year,
+            expected_nepali_calendar2.month,
+            expected_nepali_calendar2.day_of_month
+        )
+        expected_time2 = SimpleTime(5, 44, 59, 123456000)
+
+        self.assertEqual(expected_english_calendar2, custom_datetime2.custom_calendar)
+        self.assertEqual(expected_time2, custom_datetime2.simple_time)
+        
+    def test_various_iso_patterns_to_english_calendar_and_nepali_time(self):
+        test_cases = [
+            ("2020-08-30T18:43:00Z", (2077, 5, 15), SimpleTime(0, 28, 0, 0)),
+            ("2020-08-30T18:43:00.502Z", (2077, 5, 15), SimpleTime(0, 28, 0, 502000000)),
+            ("2020-08-30T18:43:00.123456Z", (2077, 5, 15), SimpleTime(0, 28, 0, 123456000)),
+            ("2020-08-30T18:40:00+00:00", (2077, 5, 15), SimpleTime(0, 25, 0, 0)),
+            ("2020-08-30T18:40:00+00:00:00", (2077, 5, 15), SimpleTime(0, 25, 0, 0)),
+            ("2011-11-04", (2068, 7, 18), SimpleTime(0, 0, 0, 0)),
+            ("2011-11-04 00:05:23.283", (2068, 7, 18), SimpleTime(0, 5, 23, 283000000)),
+            ("2011-11-04 00:05:23.283+00:00", (2068, 7, 18), SimpleTime(5, 50, 23, 283000000)),
+            ("2011-11-04T00:05:23+04:00", (2068, 7, 18), SimpleTime(1, 50, 23, 0)),
+        ]
+
+        for iso_string, (ny, nm, nd), expected_time in test_cases:
+            with self.subTest(iso_string=iso_string):
+                custom_datetime = NepaliDateConverter.get_english_date_nepali_time_from_iso_format(iso_string)
+                nepali_calendar = NepaliDateConverter.get_nepali_calendar(ny, nm, nd)
+                expected_english_calendar = NepaliDateConverter.convert_nepali_to_english(
+                    nepali_calendar.year, nepali_calendar.month, nepali_calendar.day_of_month
+                )
+                self.assertEqual(custom_datetime.custom_calendar, expected_english_calendar)
+                self.assertEqual(custom_datetime.simple_time, expected_time)
+
         
     def test_replace_delimiters_of_string_random_date_string_with_delimiter(self):
         original_date = "2024/06/21"
