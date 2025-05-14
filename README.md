@@ -119,7 +119,7 @@ class CustomCalendar:
     week_of_year: int = -1
 
 # Nepali Month Calendar for month details
-@dataclass(frozen=True)
+@dataclass
 class NepaliMonthCalendar:
     year: int
     month: int
@@ -128,6 +128,11 @@ class NepaliMonthCalendar:
     last_day_of_month: int
     days_from_start_of_week_to_first_of_month: int = field(init=False)
 
+# A data holder representing a CustomCalendar and SimpleTime
+@dataclass
+class CustomDateTime:
+    custom_calendar: CustomCalendar
+    simple_time: SimpleTime
 
 # Also, there are various extension/conversion function readily available to utilize all of them for one another.
 ```
@@ -223,9 +228,9 @@ no_of_days_between_two_nepali_dates = NepaliDateConverter.get_nepali_days_in_bet
 no_of_days_between_two_english_dates = NepaliDateConverter.get_english_days_in_between(SimpleDate(2009, 6, 21), SimpleDate(2500, 3, 23)) # returns 179244
 ```
 
-#### Format date time into ISO 2601 UTC to save date in database or have reference
+#### Format date time into ISO 8601 UTC to save date in database or have reference
 ```python
-# Format date time into ISO 2601 UTC to save date in database or have reference for other timezone calculations
+# Format date time into ISO 8601 UTC to save date in database or have reference for other timezone calculations
 nepali_date_converter = NepaliDateConverter()
 
 current_time = nepali_date_converter.current_time
@@ -234,6 +239,75 @@ today_nepali_date = nepali_date_converter.today_nepali_calendar
 
 formatted_english_date = NepaliDateConverter.format_english_date_nepali_time_to_iso(today_english_date.to_simple_date(), current_time) # returns in format, "2025-01-25T08:26:08.028900Z"
 formatted_nepali_date = NepaliDateConverter.format_nepali_datetime_to_iso(today_nepali_date.to_simple_date(), current_time) # returns in format, "2025-01-25T08:26:08.028900Z"
+```
+
+#### Convert ISO UTC format to CustomDateTime which represents the CustomCalendar and SimpleTime
+```python
+# Converts ISO UTC format to CustomDateTime which represents the Nepali CustomCalendar and Nepali SimpleTime
+custom_nepali_date_time = NepaliDateConverter.get_nepali_date_time_from_iso_format("2024-09-09T09:00:15Z")
+print(custom_nepali_date_time)  # Outputs: CustomDateTime(custom_calendar=CustomCalendar(...), simple_time=SimpleTime(...))
+
+# Converts ISO 8601 UTC format to CustomDateTime which represents the English CustomCalendar and Nepali SimpleTime
+custom_english_date_time = NepaliDateConverter.get_english_date_nepali_time_from_iso_format("2024-09-09T09:00:15Z")
+print(custom_english_date_time)  # Outputs: CustomDateTime(custom_calendar=CustomCalendar(...), simple_time=SimpleTime(...))
+```
+
+#### Format date and time using a Unicode pattern
+```python
+# Format time using a Unicode pattern
+time = NepaliDateConverter.current_time()
+
+result = NepaliDateConverter.format_time_by_unicode_pattern(
+    unicode_pattern="hh:mm:ss a",
+    time=time,
+    language=NepaliCalendarUtilsLang.NEPALI
+)  # result: "०२:४५:१५ दिउँसो"
+
+result = NepaliDateConverter.format_time_by_unicode_pattern(
+    unicode_pattern="hh:mm:ss A",
+    time=time,
+    language=NepaliCalendarUtilsLang.ENGLISH
+)  # result: "02:45:15 AM"
+
+# Format only Nepali date using a Unicode pattern
+nepali_calendar = NepaliDateConverter.today_nepali_calendar()
+
+result = NepaliDateConverter.format_nepali_date_by_unicode_pattern(
+    unicode_pattern="EEEE, MMM dd yyyy",
+    calendar=nepali_calendar,
+    language=NepaliCalendarUtilsLang.NEPALI  # use ENGLISH for English output
+)  # result: "सोमबार, भदौ २४ २०८१"
+
+# Format only English date using a Unicode pattern
+english_calendar = NepaliDateConverter.today_english_calendar()
+
+result = NepaliDateConverter.format_english_date_by_unicode_pattern(
+    unicode_pattern="E, MMM dd yyyy",
+    calendar=english_calendar,
+    language=NepaliCalendarUtilsLang.ENGLISH  # use NEPALI for Nepali output
+)  # result: "Sat, May 24 2025"
+
+# Format full Nepali date and time using a Unicode pattern
+nepali_calendar = NepaliDateConverter.today_nepali_calendar()
+time = NepaliDateConverter.current_time()
+
+result = NepaliDateConverter.format_nepali_date_time_by_unicode_pattern(
+    unicode_pattern="yyyy MMMM dd, EEEE a hh:mm:ss",
+    calendar=nepali_calendar,
+    time=time,
+    language=NepaliCalendarUtilsLang.NEPALI  # use ENGLISH for English output
+)  # result: "२०८१ भदौ २४, सोमबार दिउँसो ०२:४५:१५"
+
+# Format full English date and time using a Unicode pattern
+english_calendar = NepaliDateConverter.today_english_calendar()
+time = NepaliDateConverter.current_time()
+
+result = NepaliDateConverter.format_english_date_time_by_unicode_pattern(
+    unicode_pattern="yyyy MMMM dd, EEEE hh:mm:ss A",
+    calendar=english_calendar,
+    time=time,
+    language=NepaliCalendarUtilsLang.ENGLISH  # use NEPALI for Nepali output
+)  # result: "2025 May 24, Monday 02:45:15 PM"
 ```
 
 #### Get names of the weekdays, and month according to your choice
