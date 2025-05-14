@@ -239,6 +239,49 @@ class NepaliCalendarModel:
         )
         utc_datetime = local_datetime.astimezone(ZoneInfo("UTC"))
         return utc_datetime.isoformat().replace("+00:00", "Z")
+    
+    @staticmethod
+    def get_nepali_date_time_from_iso_format(iso_date_time: str) -> CustomDateTime:
+        instant = datetime.fromisoformat(iso_date_time.replace("Z", "+00:00"))
+        local_date_time = instant.astimezone(ZoneInfo("Asia/Kathmandu"))
+
+        nepali_calendar = NepaliCalendarModel.convert_to_nepali_calendar(
+            english_year=local_date_time.year,
+            english_month=local_date_time.month,
+            english_day=local_date_time.day
+        )
+        simple_nepali_time = SimpleTime(
+            hour=local_date_time.hour,
+            minute=local_date_time.minute,
+            second=local_date_time.second,
+            nanosecond=local_date_time.microsecond * 1000
+        )
+
+        return CustomDateTime(custom_calendar=nepali_calendar, simple_time=simple_nepali_time)
+
+    @staticmethod
+    def get_english_date_nepali_time_from_iso_format(iso_date_time: str) -> CustomDateTime:
+        instant = datetime.fromisoformat(iso_date_time.replace("Z", "+00:00"))
+        local_date_time = instant.astimezone(ZoneInfo("Asia/Kathmandu"))
+
+        nepali_calendar = NepaliCalendarModel.convert_to_nepali_calendar(
+            english_year=local_date_time.year,
+            english_month=local_date_time.month,
+            english_day=local_date_time.day
+        )
+        english_calendar = NepaliCalendarModel.convert_to_english_date(
+            nepali_year=nepali_calendar.year,
+            nepali_month=nepali_calendar.month,
+            nepali_day=nepali_calendar.day_of_month
+        )
+        simple_nepali_time = SimpleTime(
+            hour=local_date_time.hour,
+            minute=local_date_time.minute,
+            second=local_date_time.second,
+            nanosecond=local_date_time.microsecond * 1000
+        )
+
+        return CustomDateTime(custom_calendar=english_calendar, simple_time=simple_nepali_time)
 
     @staticmethod
     def compare_dates_custom(calendar: CustomCalendar, year, month, day_of_month):

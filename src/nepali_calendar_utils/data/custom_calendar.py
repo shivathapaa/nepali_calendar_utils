@@ -133,3 +133,19 @@ class CustomCalendar:
             last_day_of_month=self.last_day_of_month,
             # days_from_start_of_week_to_first_of_month=self.first_day_of_month - 1,
         )
+        
+        
+@dataclass(frozen=True)
+class CustomDateTime:
+    """
+    A data holder representing a CustomCalendar and SimpleTime.
+
+    Combines a CustomCalendar instance (representing the calendar)
+    and a SimpleTime instance (representing the time).
+
+    Attributes:
+        custom_calendar (CustomCalendar): The custom calendar represented by CustomCalendar.
+        simple_time (SimpleTime): The corresponding time of day represented by SimpleTime.
+    """
+    custom_calendar: CustomCalendar
+    simple_time: SimpleTime

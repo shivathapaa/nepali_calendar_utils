@@ -427,6 +427,59 @@ class NepaliDateConverter:
             
         return NepaliCalendarModel.format_english_date_nepali_time_to_iso_format(english_date, simple_time)
 
+    @staticmethod
+    def get_nepali_date_time_from_iso_format(iso_date_time: str) -> CustomDateTime:
+        """
+        Converts ISO UTC format to CustomDateTime which represents the Nepali CustomCalendar and Nepali SimpleTime.
+
+        :param iso_date_time: The ISO format string.
+            Examples:
+                - "2020-08-30T18:43:00Z"
+                - "2020-08-30T18:43:00.503Z"
+                - "2020-08-30T18:43:00.123456Z"
+                - "2020-08-30T18:40:00+03:00"
+                - "2020-08-30T18:40:00+03:30:20"
+                - "2011-11-04"
+                - "2011-11-04 00:05:23.283"
+                - "2011-11-04 00:05:23.283+00:00"
+                - "2011-11-04T00:05:23+04:00"
+                
+        :return: CustomDateTime representing the Nepali calendar and time.
+
+        :raises ValueError: If the input string cannot be parsed or date boundaries are exceeded.
+
+        Example:
+            custom_nepali_dt = get_nepali_date_time_from_iso_format("2024-09-09T09:00:15Z")
+            print(custom_nepali_dt)
+        """
+        return NepaliCalendarModel.get_nepali_date_time_from_iso_format(iso_date_time)
+
+    @staticmethod
+    def get_english_date_nepali_time_from_iso_format(iso_date_time: str) -> CustomDateTime:
+        """
+        Converts ISO UTC format to CustomDateTime which represents the English CustomCalendar and Nepali SimpleTime.
+
+        :param iso_date_time: The ISO format string.
+            Examples:
+                - "2020-08-30T18:43:00Z"
+                - "2020-08-30T18:43:00.503Z"
+                - "2020-08-30T18:43:00.123456Z"
+                - "2020-08-30T18:40:00+03:00"
+                - "2020-08-30T18:40:00+03:30:20"
+                - "2011-11-04"
+                - "2011-11-04 00:05:23.283"
+                - "2011-11-04 00:05:23.283+00:00"
+                - "2011-11-04T00:05:23+04:00"
+
+        :return: CustomDateTime representing the English calendar and Nepali time.
+
+        :raises ValueError: If the input string cannot be parsed or date boundaries are exceeded.
+
+        Example:
+            custom_english_dt = get_english_date_nepali_time_from_iso_format("2024-09-09T09:00:15Z")
+            print(custom_english_dt)
+        """
+        return NepaliCalendarModel.get_english_date_nepali_time_from_iso_format(iso_date_time)
 
     @staticmethod
     def compare_calendar_dates(date_to_compare_from: CustomCalendar, date_to_compare_to: CustomCalendar) -> int:
