@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nepali_calendar_utils"
-version = "2.0.0"
+version = "2.0.1"
 description = "Utilities for working with Nepali dates"
 authors = [{name = "Shiva Thapa", email = "query.shivathapaa.dev@gmail.com"}]
 maintainers = [{name = "Shiva Thapa", email = "query.shivathapaa.dev@gmail.com"}]
