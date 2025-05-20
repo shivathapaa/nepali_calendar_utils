@@ -220,8 +220,8 @@ class TestNepaliDateConverter(unittest.TestCase):
             day_of_month=1,
             era=2,
             first_day_of_month=1,
-            last_day_of_month=3,
-            total_days_in_month=31,
+            last_day_of_month=4,
+            total_days_in_month=32,
             day_of_week_in_month=1,
             day_of_week=1,
             day_of_year=63,
@@ -394,7 +394,7 @@ class TestNepaliDateConverter(unittest.TestCase):
     def test_get_nepali_month_add_one_month_to_208203_get_nepali_calendar_of_date_208104(self):
         nepali_custom_calendar = CustomCalendar(
             year=2082, month=3, day_of_month=1, era=2,
-            first_day_of_month=1, last_day_of_month=3, total_days_in_month=31,
+            first_day_of_month=1, last_day_of_month=4, total_days_in_month=32,
             day_of_week_in_month=1, day_of_week=1, day_of_year=63,
             week_of_month=1, week_of_year=10
         )
@@ -405,8 +405,8 @@ class TestNepaliDateConverter(unittest.TestCase):
 
         correct_custom_calendar_after_addition = CustomCalendar(
             year=2082, month=4, day_of_month=1, era=2,
-            first_day_of_month=4, last_day_of_month=7, total_days_in_month=32,
-            day_of_week_in_month=1, day_of_week=4, day_of_year=94,
+            first_day_of_month=5, last_day_of_month=7, total_days_in_month=31,
+            day_of_week_in_month=1, day_of_week=5, day_of_year=95,
             week_of_month=1, week_of_year=14
         )
 
@@ -460,8 +460,8 @@ class TestNepaliDateConverter(unittest.TestCase):
     def test_add_one_month(self):
         nepali_custom_calendar = CustomCalendar(
             year=2082, month=3, day_of_month=1, era=2,
-            first_day_of_month=1, last_day_of_month=3,
-            total_days_in_month=31, day_of_week_in_month=1,
+            first_day_of_month=1, last_day_of_month=4,
+            total_days_in_month=32, day_of_week_in_month=1,
             day_of_week=1, day_of_year=63, week_of_month=1,
             week_of_year=10
         )
@@ -473,9 +473,9 @@ class TestNepaliDateConverter(unittest.TestCase):
 
         expected = CustomCalendar(
             year=2082, month=4, day_of_month=1, era=2,
-            first_day_of_month=4, last_day_of_month=7,
-            total_days_in_month=32, day_of_week_in_month=1,
-            day_of_week=4, day_of_year=94, week_of_month=1,
+            first_day_of_month=5, last_day_of_month=7,
+            total_days_in_month=31, day_of_week_in_month=1,
+            day_of_week=5, day_of_year=95, week_of_month=1,
             week_of_year=14
         )
 
@@ -516,9 +516,9 @@ class TestNepaliDateConverter(unittest.TestCase):
     def test_subtract_four_months(self):
         nepali_custom_calendar = CustomCalendar(
             year=2082, month=4, day_of_month=1, era=2,
-            first_day_of_month=4, last_day_of_month=7,
-            total_days_in_month=32, day_of_week_in_month=1,
-            day_of_week=4, day_of_year=94, week_of_month=1,
+            first_day_of_month=5, last_day_of_month=7,
+            total_days_in_month=31, day_of_week_in_month=1,
+            day_of_week=5, day_of_year=95, week_of_month=1,
             week_of_year=14
         )
 
@@ -552,9 +552,9 @@ class TestNepaliDateConverter(unittest.TestCase):
 
         custom_calendar_2082 = CustomCalendar(
             year=2082, month=4, day_of_month=1, era=2,
-            first_day_of_month=4, last_day_of_month=7,
-            total_days_in_month=32, day_of_week_in_month=1,
-            day_of_week=4, day_of_year=94, week_of_month=1,
+            first_day_of_month=5, last_day_of_month=7,
+            total_days_in_month=31, day_of_week_in_month=1,
+            day_of_week=5, day_of_year=95, week_of_month=1,
             week_of_year=14
         )
 
@@ -669,12 +669,12 @@ class TestNepaliDateConverter(unittest.TestCase):
             month=4,
             day_of_month=1,
             era=2,
-            first_day_of_month=4,
+            first_day_of_month=5,
             last_day_of_month=7,
-            total_days_in_month=32,
+            total_days_in_month=31,
             day_of_week_in_month=1,
-            day_of_week=4,
-            day_of_year=94,
+            day_of_week=5,
+            day_of_year=95,
             week_of_month=1,
             week_of_year=14
         )
@@ -720,12 +720,12 @@ class TestNepaliDateConverter(unittest.TestCase):
             month=4,
             day_of_month=1,
             era=2,
-            first_day_of_month=4,
+            first_day_of_month=5,
             last_day_of_month=7,
-            total_days_in_month=32,
+            total_days_in_month=31,
             day_of_week_in_month=1,
-            day_of_week=4,
-            day_of_year=94,
+            day_of_week=5,
+            day_of_year=95,
             week_of_month=1,
             week_of_year=14
         )
