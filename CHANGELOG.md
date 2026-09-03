@@ -50,6 +50,23 @@ exactly across both libraries.
   `KeyError`, and `get_total_days_in_nepali_month` validates the month range.
 - `week_of_month` now uses the clamped day of month when a date is adjusted,
   matching the rest of the calculated calendar.
+- `NepaliCalendarModel.parse("YYYYMMDD")` now returns a real `CustomCalendar`
+  (it previously always returned an error stub because it passed a dict where a
+  `SimpleDate` was expected). Logically invalid in-range dates return the
+  documented stub with `era=2` and `-1` sentinel fields.
+
+### Dependencies and portability
+
+- **`requires-python` is now `>=3.11`.** The ISO 8601 conversion utilities rely on
+  `datetime.fromisoformat` fully parsing offsets-with-seconds and `Z` suffixes,
+  which landed in Python 3.11. The previous `>=3.7` floor was inaccurate (the
+  package already used `zoneinfo`, which is 3.9+).
+- **No third-party runtime dependencies.** Time-zone handling switched from
+  `ZoneInfo("Asia/Kathmandu")` to a fixed `+05:45` offset (`datetime.timezone`).
+  Nepal Standard Time has no DST or transitions in the supported range, so results
+  are identical - but it no longer needs the IANA tz database, so it works on
+  Windows and minimal containers where `ZoneInfo` would raise
+  `ZoneInfoNotFoundError`. This mirrors the Kotlin core's `FixedOffsetTimeZone`.
 
 ### Performance
 

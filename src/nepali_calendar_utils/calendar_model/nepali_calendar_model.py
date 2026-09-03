@@ -1,15 +1,22 @@
 import re
-from datetime import datetime
-from zoneinfo import ZoneInfo
+from datetime import datetime, timedelta, timezone
 from nepali_calendar_utils.data.custom_calendar import *
 from nepali_calendar_utils.data.nepali_date_locale import *
 from nepali_calendar_utils.data.digit_script import DigitScript, default_digit_script, to_latin_digits
 from nepali_calendar_utils.calendar_model.date_converters import DateConverters
 
+# Nepal Standard Time is a fixed +05:45 offset with no DST and no historical
+# transitions in the range this library supports. A fixed offset gives the same
+# answers as ZoneInfo("Asia/Kathmandu") while working on every platform - including
+# Windows and minimal containers that do not ship the IANA tz database (where
+# ZoneInfo would raise ZoneInfoNotFoundError). Mirrors the Kotlin core, which uses
+# FixedOffsetTimeZone(+05:45) for the same reason.
+NEPAL_TIME_ZONE = timezone(timedelta(hours=5, minutes=45))
+
 class NepaliCalendarModel:
     def __init__(self, locale: NepaliDateLocale = NepaliDateLocale()):
         self.locale = locale
-        self.time_zone = ZoneInfo("Asia/Kathmandu")
+        self.time_zone = NEPAL_TIME_ZONE
 
     def _now_local_datetime(self) -> datetime:
         # Read the wall clock on every access so `today*` rolls over at midnight.
@@ -80,6 +87,13 @@ class NepaliCalendarModel:
 
     @staticmethod
     def parse(date_string):
+        """Parse an 8-character "YYYYMMDD" string into a CustomCalendar.
+
+        Returns None when the length is not 8, the content is not numeric, or the
+        month/day are outside 1..12 / 1..32. When the month/day pass those coarse
+        bounds but form a logically invalid date (e.g. day 32 in a 31-day month),
+        returns a stub CustomCalendar with era=2 and -1 sentinel fields.
+        """
         if len(date_string) != 8:
             return None
 
@@ -87,15 +101,24 @@ class NepaliCalendarModel:
             year = int(date_string[:4])
             month = int(date_string[4:6])
             day = int(date_string[6:8])
-
-            if month < 1 or month > 12 or day < 1 or day > 32:
-                return None  # Invalid month or day
-
-            return DateConverters.get_nepali_calendar({"year": year, "month": month, "day": day})
         except ValueError:
             return None  # Invalid numeric values
-        except Exception as e:
-            return {"year": year, "month": month, "day": day, "status": -1}  # Error
+
+        if month < 1 or month > 12 or day < 1 or day > 32:
+            return None  # Invalid month or day
+
+        try:
+            return DateConverters.get_nepali_calendar(SimpleDate(year, month, day))
+        except ValueError:
+            return CustomCalendar(
+                year=year,
+                month=month,
+                day_of_month=day,
+                era=2,
+                first_day_of_month=-1,
+                last_day_of_month=-1,
+                total_days_in_month=-1,
+            )
 
     @staticmethod
     def remove_slash_delimiter(date_with_delimiter):
@@ -216,7 +239,7 @@ class NepaliCalendarModel:
 
     @staticmethod
     def format_english_date_nepali_time_to_iso_format(english_date: SimpleDate, time: SimpleTime) -> str:
-        kathmandu_tz = ZoneInfo("Asia/Kathmandu")
+        kathmandu_tz = NEPAL_TIME_ZONE
         local_datetime = datetime(
             english_date.year,
             english_date.month,
@@ -227,12 +250,12 @@ class NepaliCalendarModel:
             time.nanosecond // 1000,
             tzinfo=kathmandu_tz
         )    
-        utc_datetime = local_datetime.astimezone(ZoneInfo("UTC"))
+        utc_datetime = local_datetime.astimezone(timezone.utc)
         return utc_datetime.isoformat().replace("+00:00", "Z")
     
     @staticmethod
     def format_nepali_date_time_to_iso_format(nepali_date: SimpleDate, time: SimpleTime) -> str:
-        kathmandu_tz = ZoneInfo("Asia/Kathmandu")
+        kathmandu_tz = NEPAL_TIME_ZONE
         converted_english_date = NepaliCalendarModel.convert_to_english_calendar(
             nepali_date.year, nepali_date.month, nepali_date.day_of_month
         )
@@ -246,13 +269,13 @@ class NepaliCalendarModel:
             time.nanosecond // 1000,
             tzinfo=kathmandu_tz
         )
-        utc_datetime = local_datetime.astimezone(ZoneInfo("UTC"))
+        utc_datetime = local_datetime.astimezone(timezone.utc)
         return utc_datetime.isoformat().replace("+00:00", "Z")
     
     @staticmethod
     def get_nepali_date_time_from_iso_format(iso_date_time: str) -> CustomDateTime:
         instant = datetime.fromisoformat(iso_date_time.replace("Z", "+00:00"))
-        local_date_time = instant.astimezone(ZoneInfo("Asia/Kathmandu"))
+        local_date_time = instant.astimezone(NEPAL_TIME_ZONE)
 
         nepali_calendar = NepaliCalendarModel.convert_to_nepali_calendar(
             english_year=local_date_time.year,
@@ -271,7 +294,7 @@ class NepaliCalendarModel:
     @staticmethod
     def get_english_date_nepali_time_from_iso_format(iso_date_time: str) -> CustomDateTime:
         instant = datetime.fromisoformat(iso_date_time.replace("Z", "+00:00"))
-        local_date_time = instant.astimezone(ZoneInfo("Asia/Kathmandu"))
+        local_date_time = instant.astimezone(NEPAL_TIME_ZONE)
 
         nepali_calendar = NepaliCalendarModel.convert_to_nepali_calendar(
             english_year=local_date_time.year,

@@ -152,5 +152,135 @@ class TestSelectableWrappers(unittest.TestCase):
         self.assertEqual(6, NepaliDateConverter.working_days_between(start, end, NoOpHolidayProvider))
 
 
+class AlwaysHolidayProvider(NepaliHolidayProvider):
+    """Pathological provider that overrides is_holiday only (a contract-supported shape)."""
+
+    def holidays(self, year):
+        return set()
+
+    def is_holiday(self, date):
+        return True
+
+
+class OnlyEvenDaysSelectable(NepaliSelectableDates):
+    def is_selectable_date(self, custom_calendar):
+        return custom_calendar.day_of_month % 2 == 0
+
+
+class TestWorkingDaysKotlinParity(unittest.TestCase):
+    """The remaining edge cases from the Kotlin HolidayProviderTests."""
+
+    def test_default_weekend_is_saturday_only(self):
+        self.assertEqual(frozenset({7}), NepaliWeekend.Default)
+
+    def test_excluding_holidays_respects_wrapped_predicate(self):
+        wrapped = excluding_holidays(OnlyEvenDaysSelectable(), NoOpHolidayProvider)
+        self.assertFalse(wrapped.is_selectable_date(cal(2082, 1, 1)))  # odd
+        self.assertTrue(wrapped.is_selectable_date(cal(2082, 1, 2)))   # even
+
+    def test_excluding_weekends_custom_set_rejects_friday_and_saturday(self):
+        wrapped = excluding_weekends(NepaliSelectableDates(), weekend=frozenset({6, 7}))
+        for offset in range(8):
+            c = NepaliDateConverter.get_nepali_calendar_after_addition_or_subtraction(2082, 1, 1, offset)
+            expect = c.day_of_week not in (6, 7)
+            self.assertEqual(expect, wrapped.is_selectable_date(c), f"offset={offset} dow={c.day_of_week}")
+
+    def test_working_days_no_holidays_no_weekend_equals_raw_span(self):
+        start = SimpleDate(2082, 1, 1)
+        end = SimpleDate(2082, 1, 11)  # exclusive, 10 days
+        span = NepaliDateConverter.get_nepali_days_in_between(start, end)
+        working = working_days_between(start, end, NoOpHolidayProvider, weekend=frozenset())
+        self.assertEqual(span, working)
+        self.assertEqual(10, working)
+
+    def test_working_days_default_weekend_skips_two_saturdays_in_14(self):
+        start = SimpleDate(2082, 1, 1)
+        end = add_days(start, 14)
+        self.assertEqual(12, working_days_between(start, end, NoOpHolidayProvider))
+
+    def test_working_days_holidays_skipped(self):
+        start = SimpleDate(2082, 1, 1)
+        end = SimpleDate(2082, 1, 8)  # 7-day span
+        holiday = SimpleDate(2082, 1, 3)
+        provider = StaticProvider(HolidayEntry(holiday, "Bida", HolidayKind.GOVERNMENT_PUBLIC))
+        raw_span = NepaliDateConverter.get_nepali_days_in_between(start, end)
+        weekend_count = 0
+        for offset in range(raw_span):
+            c = NepaliDateConverter.get_nepali_calendar_after_addition_or_subtraction(
+                start.year, start.month, start.day_of_month, offset
+            )
+            if c.day_of_week == 7:
+                weekend_count += 1
+        expected = raw_span - weekend_count - 1  # minus one holiday (3rd is a weekday in this window)
+        self.assertEqual(expected, working_days_between(start, end, provider))
+
+    def test_working_days_holiday_on_weekend_not_double_counted(self):
+        start = SimpleDate(2082, 1, 1)
+        end = SimpleDate(2082, 1, 15)
+        saturday = None
+        for offset in range(14):
+            c = NepaliDateConverter.get_nepali_calendar_after_addition_or_subtraction(2082, 1, 1, offset)
+            if c.day_of_week == 7:
+                saturday = SimpleDate(c.year, c.month, c.day_of_month)
+                break
+        self.assertIsNotNone(saturday)
+        without = working_days_between(start, end, NoOpHolidayProvider)
+        with_sat_holiday = working_days_between(
+            start, end, StaticProvider(HolidayEntry(saturday, "x", HolidayKind.GOVERNMENT_PUBLIC))
+        )
+        self.assertEqual(without, with_sat_holiday)
+
+    def test_working_days_crossing_year_boundary(self):
+        start = SimpleDate(2081, 12, 25)
+        end = add_days(start, 20)
+        self.assertEqual(20, working_days_between(start, end, NoOpHolidayProvider, weekend=frozenset()))
+
+    def test_next_working_day_on_saturday_goes_to_sunday(self):
+        saturday = None
+        for offset in range(8):
+            c = NepaliDateConverter.get_nepali_calendar_after_addition_or_subtraction(2082, 1, 1, offset)
+            if c.day_of_week == 7:
+                saturday = SimpleDate(c.year, c.month, c.day_of_month)
+                break
+        nxt = next_working_day(saturday, NoOpHolidayProvider)
+        self.assertEqual(1, cal(nxt.year, nxt.month, nxt.day_of_month).day_of_week)
+
+    def test_next_working_day_on_holiday_strictly_after(self):
+        holiday = SimpleDate(2082, 1, 1)
+        provider = StaticProvider(HolidayEntry(holiday, "x", HolidayKind.GOVERNMENT_PUBLIC))
+        self.assertGreater(next_working_day(holiday, provider), holiday)
+
+    def test_next_working_day_all_holidays_raises(self):
+        with self.assertRaises(RuntimeError):
+            next_working_day(SimpleDate(2082, 1, 1), AlwaysHolidayProvider(), weekend=frozenset())
+
+    def test_add_working_days_friday_plus_one_is_sunday(self):
+        friday = None
+        for offset in range(15):
+            c = NepaliDateConverter.get_nepali_calendar_after_addition_or_subtraction(2082, 1, 1, offset)
+            if c.day_of_week == 6:
+                friday = SimpleDate(c.year, c.month, c.day_of_month)
+                break
+        nxt = add_working_days(friday, 1, NoOpHolidayProvider)
+        self.assertEqual(1, cal(nxt.year, nxt.month, nxt.day_of_month).day_of_week)
+
+    def test_add_working_days_sunday_minus_one_is_friday(self):
+        sunday = None
+        for offset in range(15):
+            c = NepaliDateConverter.get_nepali_calendar_after_addition_or_subtraction(2082, 1, 1, offset)
+            if c.day_of_week == 1:
+                sunday = SimpleDate(c.year, c.month, c.day_of_month)
+                break
+        prev = add_working_days(sunday, -1, NoOpHolidayProvider)
+        self.assertEqual(6, cal(prev.year, prev.month, prev.day_of_month).day_of_week)
+
+    def test_add_working_days_skips_holidays(self):
+        start = SimpleDate(2082, 1, 1)
+        next_day = add_days(start, 1)
+        provider = StaticProvider(HolidayEntry(next_day, "x", HolidayKind.GOVERNMENT_PUBLIC))
+        target = add_working_days(start, 1, provider, weekend=frozenset())
+        self.assertGreater(target, next_day)
+
+
 if __name__ == "__main__":
     unittest.main()

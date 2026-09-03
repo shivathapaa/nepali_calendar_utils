@@ -27,6 +27,7 @@ This Python package provides a collection of utilities for working with Nepali D
 
 * [Types/features](#typesfeatures)
 * [Installation](#installation)
+* [Documentation](#documentation)
 * [How to use in your project](#how-to-use-in-your-project)
 * [Utilities to explore](#utilities-to-explore)
 * [Support](#support)
@@ -55,6 +56,9 @@ Few of them are listed below:
 
 ## Installation
 
+Requires **Python 3.11+**. No third-party runtime dependencies (pure standard
+library; time zones use a fixed `+05:45` offset, so no IANA tz database is needed).
+
 Install the library via PIP:
 
 ```bash
@@ -73,6 +77,19 @@ from nepali_calendar_utils.calendar_model.nepali_date_converter import NepaliDat
 from nepali_calendar_utils.data.nepali_date_locale import NameFormat, NepaliDateFormatStyle, NepaliDateLocale, NepaliCalendarUtilsLang
 from nepali_calendar_utils.calendar_model.nepali_calendar_defaults import NepaliCalendarDefaults
 ```
+
+## Documentation
+
+The full API reference is published at
+**[shivathapaa.github.io/nepali_calendar_utils](https://shivathapaa.github.io/nepali_calendar_utils/)**
+(generated from the source docstrings with Sphinx, with source links back to GitHub).
+
+- [`NepaliDateConverter`](https://shivathapaa.github.io/nepali_calendar_utils/api/converter.html) - the main facade (conversion, formatting, comparison, digit scripts, selectable-date factories, working-day helpers).
+- [Data types](https://shivathapaa.github.io/nepali_calendar_utils/api/data.html) - `CustomCalendar`, `SimpleDate`, `SimpleTime`, `NepaliMonthCalendar`, `DigitScript`, `NepaliDateFormatter`, locale types.
+- [Holiday SPI](https://shivathapaa.github.io/nepali_calendar_utils/api/holiday.html) - `NepaliHolidayProvider` and working-day arithmetic.
+- [Selectable dates](https://shivathapaa.github.io/nepali_calendar_utils/api/selectable_dates.html) - `NepaliSelectableDates`.
+
+Release notes live in [CHANGELOG.md](CHANGELOG.md).
 
 ## How to use in your project
 

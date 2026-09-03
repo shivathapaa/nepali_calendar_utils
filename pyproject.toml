@@ -11,7 +11,7 @@ maintainers = [{name = "Shiva Thapa", email = "query.shivathapaa.dev@gmail.com"}
 readme = "README.md"
 license = "MPL-2.0"
 license-files = ["LICEN[CS]E*"]
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 dependencies = []
 keywords = ["nepali date", "date utilities", "nepali calendar", "nepali date utilities"]
 classifiers = [
@@ -22,6 +22,9 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
 [project.optional-dependencies]
@@ -35,4 +38,5 @@ docs = [
 Homepage = "https://github.com/shivathapaa/nepali_calendar_utils"
 Documentation = "https://shivathapaa.github.io/nepali_calendar_utils/"
 Repository = "https://github.com/shivathapaa/nepali_calendar_utils"
+Changelog = "https://github.com/shivathapaa/nepali_calendar_utils/blob/main/CHANGELOG.md"
 "Bug Tracker" = "https://github.com/shivathapaa/nepali_calendar_utils/issues"
