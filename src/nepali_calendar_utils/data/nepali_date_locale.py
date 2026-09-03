@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import Optional
+
+from nepali_calendar_utils.data.digit_script import DigitScript
 
 class NameFormat(Enum):
     FULL = "full"
@@ -126,7 +129,35 @@ class NepaliCalendarUtilsLang(Enum):
         
 @dataclass(frozen=True)
 class NepaliDateLocale:
+    """Locale settings for Nepali date display and formatting.
+
+    Attributes:
+        language: Language for date-related text. Defaults to English.
+        date_format: Style of date formatting. Defaults to LONG.
+        week_day_name: Format for weekday names. Defaults to FULL.
+        month_name: Format for month names. Defaults to FULL.
+        digit_script: Explicit numeral script for digits. ``None`` (the default)
+            means "follow the language". Set this to render Nepali month names
+            with Latin digits, or English month names with Devanagari digits.
+    """
+
     language: NepaliCalendarUtilsLang = NepaliCalendarUtilsLang.ENGLISH
     date_format: NepaliDateFormatStyle = NepaliDateFormatStyle.LONG
     week_day_name: NameFormat = NameFormat.FULL
     month_name: NameFormat = NameFormat.FULL
+    digit_script: Optional[DigitScript] = None
+
+    @property
+    def resolved_digit_script(self) -> DigitScript:
+        """Concrete digit script to render numerals with.
+
+        Returns ``digit_script`` when set explicitly, otherwise the language's
+        default (Devanagari for Nepali, Latin for English).
+        """
+        if self.digit_script is not None:
+            return self.digit_script
+        return (
+            DigitScript.DEVANAGARI
+            if self.language == NepaliCalendarUtilsLang.NEPALI
+            else DigitScript.LATIN
+        )

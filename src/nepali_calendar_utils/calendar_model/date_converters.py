@@ -10,9 +10,38 @@ class DateConverters:
     min_english_year = NepaliCalendarDefaults.EnglishYearRange[0]
     max_english_year = NepaliCalendarDefaults.EnglishYearRange[-1]
 
+    # Cumulative Bikram Sambat day count from Baisakh 1 of min_nepali_year to
+    # Baisakh 1 of each supported year. Turns the year portion of calculate_day_offset
+    # from an O(years) re-sum into an O(1) subtraction. Populated once by
+    # _initialize_caches() at module import; immutable thereafter.
+    _cumulative_days_at_year_start = {}
+
+    # Every supported Nepali month's details, precomputed once. The days_in_month_map
+    # table is static, so these never change - caching removes the per-month O(years)
+    # rebuild that get_nepali_month used to pay on every call.
+    _nepali_month_details_cache = {}
+
+    @staticmethod
+    def _month_key(year: int, month: int) -> int:
+        return year * 12 + month
+
+    @staticmethod
+    def _nepali_days_in_month_array(year: int):
+        """Return the [0, m1..m12] day-count array for ``year``, raising a clear
+        ValueError (rather than leaking a KeyError) when the year is out of table."""
+        days = days_in_month_map.get(year)
+        if days is None:
+            raise ValueError(
+                f"Out of Range: Nepali year {year} is out of the supported range "
+                f"{DateConverters.min_nepali_year}..{DateConverters.max_nepali_year}."
+            )
+        return days
+
     @staticmethod
     def get_total_days_in_nepali_month(nepaliYYYY: int, nepaliMM: int) -> int:
-        return days_in_month_map[nepaliYYYY][nepaliMM]
+        if not (1 <= nepaliMM <= 12):
+            raise ValueError(f"Invalid month: {nepaliMM}. Must be between 1 and 12.")
+        return DateConverters._nepali_days_in_month_array(nepaliYYYY)[nepaliMM]
 
     @staticmethod
     def convert_to_nepali_calendar(englishYYYY: int, englishMM: int, englishDD: int) -> CustomCalendar:
@@ -51,7 +80,7 @@ class DateConverters:
         first_day_of_month = starting_nepali_calendar.first_day_of_month
         last_day_of_month = starting_nepali_calendar.last_day_of_month
 
-        total_days_in_month = days_in_month_map[nepaliYYYY][nepaliMM]
+        total_days_in_month = DateConverters._nepali_days_in_month_array(nepaliYYYY)[nepaliMM]
 
         for _ in range(total_days_difference):
             nepaliDD += 1
@@ -74,7 +103,7 @@ class DateConverters:
                     week_of_year = 1
 
                 week_of_month = 1
-                total_days_in_month = days_in_month_map[nepaliYYYY][nepaliMM]
+                total_days_in_month = DateConverters._nepali_days_in_month_array(nepaliYYYY)[nepaliMM]
                 first_day_of_month = day_of_week
 
             remaining_days = total_days_in_month - nepaliDD
@@ -201,12 +230,13 @@ class DateConverters:
         total_nep_days_count = 0
 
         for year in range(starting_nepali_calendar.year, nepali_yyyy):
-            days_in_year = days_in_month_map[year]
+            days_in_year = DateConverters._nepali_days_in_month_array(year)
             for month in range(1, 13):
                 total_nep_days_count += days_in_year[month]
 
+        days_in_target_year = DateConverters._nepali_days_in_month_array(nepali_yyyy)
         for month in range(starting_nepali_calendar.month, nepali_mm):
-            total_nep_days_count += days_in_month_map[nepali_yyyy][month]
+            total_nep_days_count += days_in_target_year[month]
 
         total_nep_days_count += nepali_dd - starting_nepali_calendar.day_of_month
 
@@ -227,40 +257,6 @@ class DateConverters:
             adjust_month=False
         )
         
-    # @staticmethod
-    # def calculate_nepali_month_details(year: int, month: int) -> CustomCalendar:
-    #     total_days_in_month = days_in_month_map.get(year, {}).get(month)
-    #     print("My test mapper " + total_days_in_month)
-    #     if total_days_in_month is None:
-    #         raise ValueError(f"Invalid year {year} or month {month}.")
-
-    #     starting_nepali_calendar = nepali_date_map.get(year - 1, None)
-    #     print("My test mapper " + starting_nepali_calendar)
-    #     if not starting_nepali_calendar:
-    #         raise ValueError("Starting calendar not defined.")
-
-    #     day_offset = DateConverters.calculate_day_offset(starting_nepali_calendar.year, year, month)
-    #     first_day_of_month = (starting_nepali_calendar.first_day_of_month + day_offset) % 7
-    #     normalized_first_day_of_month = 7 if first_day_of_month == 0 else first_day_of_month
-    #     normalized_last_day_of_month = (
-    #         (normalized_first_day_of_month + total_days_in_month - 1) % 7 or 7
-    #     )
-
-    #     return CustomCalendar(
-    #         year=year,
-    #         month=month,
-    #         day_of_month=0,
-    #         total_days_in_month=total_days_in_month,
-    #         first_day_of_month=normalized_first_day_of_month,
-    #         last_day_of_month=normalized_last_day_of_month,
-    #         day_of_week_in_month=0,
-    #         day_of_week=0,
-    #         era=2,
-    #         day_of_year=0,
-    #         week_of_month=0,
-    #         week_of_year=0,
-    #     )
-
     @staticmethod
     def nepali_days_in_between(start_date: SimpleDate, end_date: SimpleDate) -> int:
         if start_date.year > end_date.year:
@@ -309,7 +305,7 @@ class DateConverters:
             era=2,
             day_of_year=total_day_of_year,
             week_of_month=DateConverters.calculate_week_of_month(
-                day_of_month=day_of_month,
+                day_of_month=new_day_of_month,
                 first_day_of_month=month_details.first_day_of_month,
             ),
             week_of_year=DateConverters.calculate_week_of_year(
@@ -373,17 +369,31 @@ class DateConverters:
 
     @staticmethod
     def calculate_nepali_month_details(nepali_year: int, nepali_month: int) -> NepaliMonthCalendar:
+        """Return month details for a Nepali year/month, from the precomputed cache.
 
+        The underlying table is static, so cached results never change.
+        """
+        if nepali_month not in range(1, 13):
+            raise ValueError(f"Invalid month: {nepali_month}. Must be between 1 and 12.")
+        cached = DateConverters._nepali_month_details_cache.get(
+            DateConverters._month_key(nepali_year, nepali_month)
+        )
+        if cached is None:
+            raise ValueError(f"Invalid year {nepali_year} or month provided {nepali_month}.")
+        return cached
+
+    @staticmethod
+    def _compute_nepali_month_details(nepali_year: int, nepali_month: int) -> NepaliMonthCalendar:
         if nepali_year not in days_in_month_map or nepali_month not in range(1, 13):
             raise ValueError(f"Invalid year {nepali_year} or month provided {nepali_month}.")
-        
+
         total_days_in_month = days_in_month_map[nepali_year][nepali_month]
 
         starting_nepali_calendar = (
-            nepali_date_map.get(nepali_year - 1, {}).nepaliDate 
+            nepali_date_map.get(nepali_year - 1, {}).nepaliDate
             if nepali_date_map.get(nepali_year - 1) else NepaliCalendarDefaults.startingNepaliCalendar
         )
-        
+
         day_offset = DateConverters.calculate_day_offset(starting_nepali_calendar.year, nepali_year, nepali_month)
 
         first_day_of_month = (starting_nepali_calendar.first_day_of_month + day_offset) % 7
@@ -401,21 +411,19 @@ class DateConverters:
         )
 
     @staticmethod
-    def calculate_day_offset(starting_year: int, target_year: int, target_month: int) -> int:        
-        for year in range(starting_year, target_year):
-            if year not in days_in_month_map:
-                raise ValueError(f"Year {year} is missing in days_in_month_map.")
-        
-        year_offset = sum(
-            sum(days_in_month_map[year][1:])
-            for year in range(starting_year, target_year)
+    def calculate_day_offset(starting_year: int, target_year: int, target_month: int) -> int:
+        # O(1) prefix subtraction for whole years instead of re-summing each year's
+        # 12-month array. Equivalent to summing year totals over range(starting, target).
+        year_offset = (
+            DateConverters._cumulative_days_at_year_start.get(target_year, 0)
+            - DateConverters._cumulative_days_at_year_start.get(starting_year, 0)
         )
-        
-        if target_year in days_in_month_map:
-            month_offset = sum(days_in_month_map[target_year][1:target_month])
-        else:
+
+        target_days = days_in_month_map.get(target_year)
+        if target_days is None:
             raise ValueError(f"Target year {target_year} is missing in days_in_month_map.")
-        
+        month_offset = sum(target_days[1:target_month])
+
         return year_offset + month_offset
 
     @staticmethod
@@ -460,12 +468,50 @@ class DateConverters:
         
     @staticmethod
     def is_english_date_in_conversion_range(english_yyyy: int, english_mm: int, english_dd: int) -> bool:
-        return (
-            DateConverters.min_english_year <= english_yyyy <= DateConverters.max_english_year
-            and 1 <= english_mm <= 12
-            and 1 <= english_dd <= 31
-        )
+        if not (DateConverters.min_english_year <= english_yyyy <= DateConverters.max_english_year):
+            return False
+        if not (1 <= english_mm <= 12) or not (1 <= english_dd <= 31):
+            return False
+
+        # Reject English dates before the earliest convertible anchor
+        # (English 1913-04-13 == Nepali 1970-01-01). Without this guard, dates in
+        # 1913-01-01..1913-04-12 pass the year check, then the day-walk runs zero
+        # times and silently returns the anchor (Nepali 1970-01-01) - a wrong
+        # result with no error.
+        start = NepaliCalendarDefaults.startingEnglishCalendar
+        if english_yyyy == start.year and (
+            english_mm < start.month
+            or (english_mm == start.month and english_dd < start.day_of_month)
+        ):
+            return False
+
+        return True
 
     @staticmethod
     def is_english_leap_year(year: int) -> bool:
         return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
+
+
+def _initialize_caches():
+    """Populate DateConverters' cumulative-day prefix table and month-details cache.
+
+    Runs once at import. The cumulative table must be built before the month-details
+    cache, since _compute_nepali_month_details -> calculate_day_offset reads it.
+    """
+    cumulative = {}
+    running = 0
+    for year in range(DateConverters.min_nepali_year, DateConverters.max_nepali_year + 1):
+        cumulative[year] = running
+        running += sum(days_in_month_map[year])
+    DateConverters._cumulative_days_at_year_start = cumulative
+
+    details = {}
+    for year in range(DateConverters.min_nepali_year, DateConverters.max_nepali_year + 1):
+        for month in range(1, 13):
+            details[DateConverters._month_key(year, month)] = (
+                DateConverters._compute_nepali_month_details(year, month)
+            )
+    DateConverters._nepali_month_details_cache = details
+
+
+_initialize_caches()

@@ -43,6 +43,12 @@ Few of them are listed below:
 - `NepaliDateLocale` - To control language, dateFormat, weekDayName, and monthName.
 - `NepaliCalendarUtilsLang` - Set of supported language (English & Nepali for now).
 - `NepaliDateConverter` - Provides utilities for date conversions (english to nepali and vice versa), get formatted date(6), get time, get date-time in ISO 8601 format, calculate days in between two date, and many more.
+- `DigitScript` - Numeral script (`LATIN` / `DEVANAGARI`) decoupled from language, with digit localization helpers.
+- `NepaliDateFormatter` - Parse and format `SimpleDate` for short numeric text-field input (`YYYY/MM/DD` and friends).
+- `NepaliSelectableDates` - Predicate for enabling/disabling dates, with before/after/range factories.
+- Holiday provider SPI (`NepaliHolidayProvider`, `HolidayEntry`, `HolidayKind`, `NepaliWeekend`) and working-day arithmetic (`working_days_between`, `next_working_day`, `add_working_days`).
+
+> **New in 3.0.0:** brings the package to parity with the Kotlin core 3.1.0 release - digit scripts, a text-field date formatter, a holiday provider SPI with working-day helpers, selectable-date factories, `SimpleDate` ordering, and several correctness fixes. See [CHANGELOG.md](CHANGELOG.md).
 
 
 ## Installation
@@ -379,6 +385,84 @@ original_time = "09:45 AM"
 new_delimiter_space = " "
 old_delimiter = ":"
 formatted_time_with_space = NepaliDateConverter.replace_delimiter(original_time, new_delimiter_space, old_delimiter) # returns "09 45 AM"
+```
+
+#### Compare and sort dates (`SimpleDate` is ordered)
+```python
+from nepali_calendar_utils import SimpleDate
+
+SimpleDate(2081, 5, 24) < SimpleDate(2081, 5, 25)  # True
+
+dates = [SimpleDate(2082, 1, 1), SimpleDate(2080, 12, 30), SimpleDate(2081, 5, 24)]
+sorted(dates)  # [2080-12-30, 2081-05-24, 2082-01-01]
+min(dates), max(dates)
+```
+
+#### Localize digits with `DigitScript` (any language)
+```python
+from nepali_calendar_utils import NepaliDateConverter, DigitScript, NepaliDateLocale, NepaliCalendarUtilsLang
+
+NepaliDateConverter.localize_digits("2082/02/14", DigitScript.DEVANAGARI)  # "२०८२/०२/१४"
+NepaliDateConverter.to_latin_digits("२०८२/०२/१४")                          # "2082/02/14"
+
+# DigitScript is decoupled from language - render Nepali month names with Latin digits:
+locale = NepaliDateLocale(language=NepaliCalendarUtilsLang.NEPALI, digit_script=DigitScript.LATIN)
+locale.resolved_digit_script  # DigitScript.LATIN  (None follows the language)
+```
+
+#### Parse / format short date strings with `NepaliDateFormatter`
+```python
+from nepali_calendar_utils import NepaliDateFormatter, DatePattern, DigitScript, SimpleDate
+
+# Format
+NepaliDateFormatter.format(SimpleDate(2082, 2, 14), DatePattern.YYYY_SLASH_MM_SLASH_DD)  # "2082/02/14"
+NepaliDateFormatter.format(SimpleDate(2082, 2, 14), DatePattern.DD_DASH_MM_DASH_YYYY, DigitScript.DEVANAGARI)  # "१४-०२-२०८२"
+
+# Parse - accepts Latin and Devanagari digits; returns None on invalid input
+NepaliDateFormatter.parse("2082/02/14", DatePattern.YYYY_SLASH_MM_SLASH_DD)  # SimpleDate(2082, 2, 14)
+NepaliDateFormatter.parse("२०८२/०२/१४", DatePattern.YYYY_SLASH_MM_SLASH_DD)  # SimpleDate(2082, 2, 14)
+NepaliDateFormatter.parse("2082/13/14", DatePattern.YYYY_SLASH_MM_SLASH_DD)  # None (bad month)
+```
+
+#### Restrict selectable dates
+```python
+from nepali_calendar_utils import NepaliDateConverter, SimpleDate
+
+before = NepaliDateConverter.before_date_selectable(SimpleDate(2081, 5, 24))       # dates before (exclusive)
+after = NepaliDateConverter.after_date_selectable(SimpleDate(2081, 5, 24), include_date=True)  # on/after
+in_range = NepaliDateConverter.date_range_selectable(SimpleDate(2081, 1, 1), SimpleDate(2081, 12, 30))
+
+cal = NepaliDateConverter.get_nepali_calendar(2081, 5, 23)
+before.is_selectable_date(cal)  # True
+before.is_selectable_year(2082) # False
+```
+
+#### Holidays and working-day arithmetic
+```python
+from nepali_calendar_utils import (
+    NepaliDateConverter, SimpleDate,
+    NepaliHolidayProvider, HolidayEntry, HolidayKind, NepaliWeekend,
+    working_days_between, next_working_day, add_working_days,
+    excluding_weekends, excluding_holidays, NepaliSelectableDates,
+)
+
+# No holiday data ships by design - supply your own provider.
+class MyHolidays(NepaliHolidayProvider):
+    def holidays(self, year):
+        return {HolidayEntry(SimpleDate(2082, 1, 1), "नयाँ वर्ष", HolidayKind.GOVERNMENT_PUBLIC)}
+
+provider = MyHolidays()
+
+# Excel WORKDAY semantics; weekend defaults to Saturday only (Nepal's single-day weekend).
+working_days_between(SimpleDate(2082, 1, 1), SimpleDate(2082, 1, 15), provider)  # int
+next_working_day(SimpleDate(2082, 1, 1), provider)                              # SimpleDate
+add_working_days(SimpleDate(2082, 1, 1), 5, provider)                           # SimpleDate
+
+# Pass a Friday+Saturday weekend explicitly:
+add_working_days(SimpleDate(2082, 1, 1), 5, provider, weekend=frozenset({6, 7}))
+
+# Compose with selectable dates:
+selectable = excluding_holidays(excluding_weekends(NepaliSelectableDates()), provider)
 ```
 
 And there is always more to explore... ;)

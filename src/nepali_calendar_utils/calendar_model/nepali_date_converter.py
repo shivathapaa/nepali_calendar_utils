@@ -2,6 +2,8 @@ from nepali_calendar_utils.data.custom_calendar import *
 from nepali_calendar_utils.calendar_model.nepali_calendar_model import NepaliCalendarModel
 from datetime import date
 from nepali_calendar_utils.data.nepali_date_locale import NameFormat, NepaliDateLocale, NepaliCalendarUtilsLang
+from nepali_calendar_utils.data.digit_script import DigitScript, to_latin_digits as _to_latin_digits
+from nepali_calendar_utils.nepali_selectable_dates import NepaliSelectableDates, _FunctionalSelectableDates
 
 class NepaliDateConverter:
     """A utility class for handling Nepali date conversions, formatting, and related operations."""
@@ -896,3 +898,142 @@ class NepaliDateConverter:
             str: English number string.
         """
         return NepaliCalendarModel.convert_to_english_number(nepali_string)
+
+    @staticmethod
+    def localize_digits(text: str, script: DigitScript) -> str:
+        """
+        Localizes Latin digits in a string to the given digit script.
+
+        Non-digit characters and digits already outside ASCII 0-9 are kept verbatim.
+        For DigitScript.LATIN this is a no-op.
+
+        Example:
+            localize_digits("2082/02/14", DigitScript.DEVANAGARI)  # "२०८२/०२/१४"
+        """
+        return script.localize(text)
+
+    @staticmethod
+    def to_latin_digits(text: str) -> str:
+        """
+        Inverse of localize_digits. Converts digits in any supported non-Latin
+        script back to ASCII 0-9. Non-digit characters pass through unchanged.
+
+        Example:
+            to_latin_digits("२०८२/०२/१४")  # "2082/02/14"
+        """
+        return _to_latin_digits(text)
+
+    @staticmethod
+    def before_date_selectable(simple_date: SimpleDate, include_date: bool = False) -> NepaliSelectableDates:
+        """
+        Returns a NepaliSelectableDates that allows selection of dates before the given date.
+
+        Args:
+            simple_date (SimpleDate): The date before which selection is allowed.
+            include_date (bool): Whether to include the given date itself.
+        """
+        def date_predicate(custom_calendar):
+            comparison = NepaliCalendarModel.compare_dates_custom(
+                custom_calendar, simple_date.year, simple_date.month, simple_date.day_of_month
+            )
+            return comparison <= 0 if include_date else comparison < 0
+
+        return _FunctionalSelectableDates(
+            date_predicate=date_predicate,
+            year_predicate=lambda year: year <= simple_date.year,
+        )
+
+    @staticmethod
+    def after_date_selectable(simple_date: SimpleDate, include_date: bool = False) -> NepaliSelectableDates:
+        """
+        Returns a NepaliSelectableDates that allows selection of dates after the given date.
+
+        Args:
+            simple_date (SimpleDate): The date after which selection is allowed.
+            include_date (bool): Whether to include the given date itself.
+        """
+        def date_predicate(custom_calendar):
+            comparison = NepaliCalendarModel.compare_dates_custom(
+                custom_calendar, simple_date.year, simple_date.month, simple_date.day_of_month
+            )
+            return comparison >= 0 if include_date else comparison > 0
+
+        return _FunctionalSelectableDates(
+            date_predicate=date_predicate,
+            year_predicate=lambda year: year >= simple_date.year,
+        )
+
+    @staticmethod
+    def date_range_selectable(
+        min_date: SimpleDate,
+        max_date: SimpleDate,
+        include_min_date: bool = False,
+        include_max_date: bool = False,
+    ) -> NepaliSelectableDates:
+        """
+        Returns a NepaliSelectableDates representing a selectable date range.
+
+        ``min_date`` should be less than or equal to ``max_date``.
+
+        Args:
+            min_date (SimpleDate): The minimum selectable date.
+            max_date (SimpleDate): The maximum selectable date.
+            include_min_date (bool): Whether ``min_date`` is included in the range.
+            include_max_date (bool): Whether ``max_date`` is included in the range.
+        """
+        def date_predicate(custom_calendar):
+            compare_min = NepaliCalendarModel.compare_dates_custom(
+                custom_calendar, min_date.year, min_date.month, min_date.day_of_month
+            )
+            compare_max = NepaliCalendarModel.compare_dates_custom(
+                custom_calendar, max_date.year, max_date.month, max_date.day_of_month
+            )
+            if include_min_date and include_max_date:
+                return compare_min >= 0 and compare_max <= 0
+            if include_min_date and not include_max_date:
+                return compare_min >= 0 and compare_max < 0
+            if not include_min_date and include_max_date:
+                return compare_min > 0 and compare_max <= 0
+            return compare_min > 0 and compare_max < 0
+
+        return _FunctionalSelectableDates(
+            date_predicate=date_predicate,
+            year_predicate=lambda year: min_date.year <= year <= max_date.year,
+        )
+
+    @staticmethod
+    def working_days_between(start_date, end_date, provider, weekend=None):
+        """
+        Number of working days in the half-open range [start_date, end_date),
+        skipping weekend days and dates flagged by ``provider``. See
+        nepali_calendar_utils.holiday.working_days_between.
+        """
+        from nepali_calendar_utils.holiday.holiday_helpers import working_days_between
+        from nepali_calendar_utils.holiday.holiday_provider import NepaliWeekend
+        return working_days_between(
+            start_date, end_date, provider, NepaliWeekend.Default if weekend is None else weekend
+        )
+
+    @staticmethod
+    def next_working_day(from_date, provider, weekend=None):
+        """
+        First working day at or after ``from_date``. See
+        nepali_calendar_utils.holiday.next_working_day.
+        """
+        from nepali_calendar_utils.holiday.holiday_helpers import next_working_day
+        from nepali_calendar_utils.holiday.holiday_provider import NepaliWeekend
+        return next_working_day(
+            from_date, provider, NepaliWeekend.Default if weekend is None else weekend
+        )
+
+    @staticmethod
+    def add_working_days(from_date, days, provider, weekend=None):
+        """
+        The date that is ``days`` working days from ``from_date`` (Excel WORKDAY
+        semantics). See nepali_calendar_utils.holiday.add_working_days.
+        """
+        from nepali_calendar_utils.holiday.holiday_helpers import add_working_days
+        from nepali_calendar_utils.holiday.holiday_provider import NepaliWeekend
+        return add_working_days(
+            from_date, days, provider, NepaliWeekend.Default if weekend is None else weekend
+        )

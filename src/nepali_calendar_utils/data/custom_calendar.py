@@ -1,16 +1,20 @@
 from dataclasses import dataclass, field
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class SimpleDate:
     """
     Represents a simple date with year, month, and day of the month.
+
+    Ordered chronologically: comparisons and sorting follow (year, month,
+    day_of_month), so ``sorted()``, ``min()``, ``max()``, and ``<``/``>`` work as
+    expected.
 
     Attributes:
         year (int): The year.
         month (int): The month (1-12).
         day_of_month (int): The day of the month (1-32). Defaults to 1.
     """
-    
+
     year: int
     month: int
     day_of_month: int = 1

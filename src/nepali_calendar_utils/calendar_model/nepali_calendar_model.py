@@ -3,34 +3,41 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from nepali_calendar_utils.data.custom_calendar import *
 from nepali_calendar_utils.data.nepali_date_locale import *
+from nepali_calendar_utils.data.digit_script import DigitScript, default_digit_script, to_latin_digits
 from nepali_calendar_utils.calendar_model.date_converters import DateConverters
 
 class NepaliCalendarModel:
     def __init__(self, locale: NepaliDateLocale = NepaliDateLocale()):
         self.locale = locale
         self.time_zone = ZoneInfo("Asia/Kathmandu")
-        self.local_english_date_time = datetime.now(self.time_zone)
-        
+
+    def _now_local_datetime(self) -> datetime:
+        # Read the wall clock on every access so `today*` rolls over at midnight.
+        # Previously this was captured once in __init__, which froze "today" for
+        # the lifetime of the model instance.
+        return datetime.now(self.time_zone)
+
     @property
     def today_nepali_calendar(self) -> CustomCalendar:
         return self.get_nepali_date_instance()
-    
+
     @property
     def today_english_calendar(self) -> CustomCalendar:
-        today_nepali_calendar = NepaliCalendarModel().today_nepali_calendar
-        return DateConverters.convert_to_english_calendar(nepali_yyyy=today_nepali_calendar.year, nepali_mm=today_nepali_calendar.month, nepali_dd=today_nepali_calendar.day_of_month)
+        today = self.today_nepali_calendar
+        return DateConverters.convert_to_english_calendar(nepali_yyyy=today.year, nepali_mm=today.month, nepali_dd=today.day_of_month)
 
     @property
     def today_english_simple_date(self) -> SimpleDate:
+        now = self._now_local_datetime()
         return SimpleDate(
-            year=self.local_english_date_time.year,
-            month=self.local_english_date_time.month,
-            day_of_month=self.local_english_date_time.day,
+            year=now.year,
+            month=now.month,
+            day_of_month=now.day,
         )
-    
+
     @property
     def current_time(self) -> SimpleTime:
-        now_time = datetime.now(self.time_zone)
+        now_time = self._now_local_datetime()
         return SimpleTime(
             hour=now_time.hour,
             minute=now_time.minute,
@@ -39,10 +46,11 @@ class NepaliCalendarModel:
         )
 
     def get_nepali_date_instance(self) -> CustomCalendar:
+        now = self._now_local_datetime()
         return DateConverters.convert_to_nepali_calendar(
-            englishYYYY=self.local_english_date_time.year,
-            englishMM=self.local_english_date_time.month,
-            englishDD=self.local_english_date_time.day,
+            englishYYYY=now.year,
+            englishMM=now.month,
+            englishDD=now.day,
         )
         
     @staticmethod
@@ -390,7 +398,7 @@ class NepaliCalendarModel:
 
     @staticmethod
     def localize_number(string_to_localize: str, lang: NepaliCalendarUtilsLang):
-        return string_to_localize if lang == NepaliCalendarUtilsLang.ENGLISH else NepaliCalendarModel.convert_to_nepali_number(string_to_localize)
+        return default_digit_script(lang).localize(string_to_localize)
 
     @staticmethod
     def localize_numbers_to_nepali(english_string: str):
@@ -400,25 +408,13 @@ class NepaliCalendarModel:
     def localize_number_to_english(nepali_string: str):
         return NepaliCalendarModel.convert_to_english_number(nepali_string)
 
-
-    NEPALI_DIGITS = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९']
-    NEPALI_TO_ENGLISH_DIGITS = {
-        '०': '0', '१': '1', '२': '2', '३': '3', '४': '4',
-        '५': '5', '६': '6', '७': '7', '८': '8', '९': '9'
-    }
-
     @staticmethod
     def convert_to_nepali_number(string: str):
-        return ''.join(
-            NepaliCalendarModel.NEPALI_DIGITS[int(char)] if '0' <= char <= '9' else char
-            for char in string
-        )
+        return DigitScript.DEVANAGARI.localize(string)
 
     @staticmethod
     def convert_to_english_number(string: str):
-        return ''.join(
-            NepaliCalendarModel.NEPALI_TO_ENGLISH_DIGITS.get(char, char) for char in string
-        )
+        return to_latin_digits(string)
 
     @staticmethod
     def get_time_format_replacements(time: SimpleTime, language: NepaliCalendarUtilsLang) -> dict[str, str]:
