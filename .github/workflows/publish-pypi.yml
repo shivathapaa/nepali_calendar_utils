@@ -9,7 +9,13 @@ permissions:
   id-token: write
 
 jobs:
+  # Gate: the full test matrix (every supported Python version and OS) must pass
+  # before anything is built or published. A release can never ship on a red suite.
+  test:
+    uses: ./.github/workflows/_test.yml
+
   build:
+    needs: test
     runs-on: ubuntu-latest
     environment: build
 
