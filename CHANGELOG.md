@@ -54,6 +54,11 @@ exactly across both libraries.
   (it previously always returned an error stub because it passed a dict where a
   `SimpleDate` was expected). Logically invalid in-range dates return the
   documented stub with `era=2` and `-1` sentinel fields.
+- ISO parsing of a naive datetime string (no offset, e.g. `"2011-11-04"`) now
+  interprets it as Nepal local time, so `get_nepali_date_time_from_iso_format` and
+  `get_english_date_nepali_time_from_iso_format` are deterministic regardless of
+  the host's system time zone. They previously let `astimezone` assume the host
+  zone, which gave different results on UTC hosts than on `Asia/Kathmandu` ones.
 
 ### Dependencies and portability
 

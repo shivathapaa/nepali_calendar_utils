@@ -275,6 +275,10 @@ class NepaliCalendarModel:
     @staticmethod
     def get_nepali_date_time_from_iso_format(iso_date_time: str) -> CustomDateTime:
         instant = datetime.fromisoformat(iso_date_time.replace("Z", "+00:00"))
+        if instant.tzinfo is None:
+            # A naive ISO string (no offset) is interpreted as Nepal local time, so
+            # parsing is deterministic regardless of the host's system time zone.
+            instant = instant.replace(tzinfo=NEPAL_TIME_ZONE)
         local_date_time = instant.astimezone(NEPAL_TIME_ZONE)
 
         nepali_calendar = NepaliCalendarModel.convert_to_nepali_calendar(
@@ -294,6 +298,10 @@ class NepaliCalendarModel:
     @staticmethod
     def get_english_date_nepali_time_from_iso_format(iso_date_time: str) -> CustomDateTime:
         instant = datetime.fromisoformat(iso_date_time.replace("Z", "+00:00"))
+        if instant.tzinfo is None:
+            # A naive ISO string (no offset) is interpreted as Nepal local time, so
+            # parsing is deterministic regardless of the host's system time zone.
+            instant = instant.replace(tzinfo=NEPAL_TIME_ZONE)
         local_date_time = instant.astimezone(NEPAL_TIME_ZONE)
 
         nepali_calendar = NepaliCalendarModel.convert_to_nepali_calendar(
