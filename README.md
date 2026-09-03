@@ -11,7 +11,9 @@ This Python package provides a collection of utilities for working with Nepali D
   <a href="https://pypi.org/project/nepali_calendar_utils/">
     <img alt="version" src="https://img.shields.io/pypi/v/nepali_calendar_utils" /></a>&nbsp;
   <a href="https://github.com/shivathapaa/nepali_calendar_utils/blob/main/LICENSE">
-    <img alt="license" src="https://img.shields.io/github/license/shivathapaa/nepali_calendar_utils?labelColor=F5DDD7&color=E0BFB7"/></a>
+    <img alt="license" src="https://img.shields.io/github/license/shivathapaa/nepali_calendar_utils?labelColor=F5DDD7&color=E0BFB7"/></a>&nbsp;
+  <a href="https://shivathapaa.github.io/nepali_calendar_utils/">
+    <img alt="API reference" src="https://img.shields.io/badge/API%20reference-%E2%86%92-12100E?labelColor=E2E3D8"/></a>
 </p>
 
 <br>

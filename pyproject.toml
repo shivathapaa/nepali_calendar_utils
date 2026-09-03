@@ -24,8 +24,15 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
 ]
 
+[project.optional-dependencies]
+docs = [
+    "sphinx>=7.2",
+    "furo>=2024.1.29",
+    "myst-parser>=2.0",
+]
+
 [project.urls]
 Homepage = "https://github.com/shivathapaa/nepali_calendar_utils"
-Documentation = "https://github.com/shivathapaa/nepali_calendar_utils/blob/main/README.md"
+Documentation = "https://shivathapaa.github.io/nepali_calendar_utils/"
 Repository = "https://github.com/shivathapaa/nepali_calendar_utils"
 "Bug Tracker" = "https://github.com/shivathapaa/nepali_calendar_utils/issues"

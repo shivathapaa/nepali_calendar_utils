@@ -434,23 +434,22 @@ class NepaliDateConverter:
         """
         Converts ISO UTC format to CustomDateTime which represents the Nepali CustomCalendar and Nepali SimpleTime.
 
-        :param iso_date_time: The ISO format string.
-            Examples:
-                - "2020-08-30T18:43:00Z"
-                - "2020-08-30T18:43:00.503Z"
-                - "2020-08-30T18:43:00.123456Z"
-                - "2020-08-30T18:40:00+03:00"
-                - "2020-08-30T18:40:00+03:30:20"
-                - "2011-11-04"
-                - "2011-11-04 00:05:23.283"
-                - "2011-11-04 00:05:23.283+00:00"
-                - "2011-11-04T00:05:23+04:00"
-                
-        :return: CustomDateTime representing the Nepali calendar and time.
+        :param iso_date_time: The ISO format string. Accepted examples:
 
+            - "2020-08-30T18:43:00Z"
+            - "2020-08-30T18:43:00.503Z"
+            - "2020-08-30T18:43:00.123456Z"
+            - "2020-08-30T18:40:00+03:00"
+            - "2020-08-30T18:40:00+03:30:20"
+            - "2011-11-04"
+            - "2011-11-04 00:05:23.283"
+            - "2011-11-04 00:05:23.283+00:00"
+            - "2011-11-04T00:05:23+04:00"
+        :return: CustomDateTime representing the Nepali calendar and time.
         :raises ValueError: If the input string cannot be parsed or date boundaries are exceeded.
 
-        Example:
+        Example::
+
             custom_nepali_dt = get_nepali_date_time_from_iso_format("2024-09-09T09:00:15Z")
             print(custom_nepali_dt)
         """
@@ -461,23 +460,22 @@ class NepaliDateConverter:
         """
         Converts ISO UTC format to CustomDateTime which represents the English CustomCalendar and Nepali SimpleTime.
 
-        :param iso_date_time: The ISO format string.
-            Examples:
-                - "2020-08-30T18:43:00Z"
-                - "2020-08-30T18:43:00.503Z"
-                - "2020-08-30T18:43:00.123456Z"
-                - "2020-08-30T18:40:00+03:00"
-                - "2020-08-30T18:40:00+03:30:20"
-                - "2011-11-04"
-                - "2011-11-04 00:05:23.283"
-                - "2011-11-04 00:05:23.283+00:00"
-                - "2011-11-04T00:05:23+04:00"
+        :param iso_date_time: The ISO format string. Accepted examples:
 
+            - "2020-08-30T18:43:00Z"
+            - "2020-08-30T18:43:00.503Z"
+            - "2020-08-30T18:43:00.123456Z"
+            - "2020-08-30T18:40:00+03:00"
+            - "2020-08-30T18:40:00+03:30:20"
+            - "2011-11-04"
+            - "2011-11-04 00:05:23.283"
+            - "2011-11-04 00:05:23.283+00:00"
+            - "2011-11-04T00:05:23+04:00"
         :return: CustomDateTime representing the English calendar and Nepali time.
-
         :raises ValueError: If the input string cannot be parsed or date boundaries are exceeded.
 
-        Example:
+        Example::
+
             custom_english_dt = get_english_date_nepali_time_from_iso_format("2024-09-09T09:00:15Z")
             print(custom_english_dt)
         """
