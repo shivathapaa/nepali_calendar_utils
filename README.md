@@ -20,25 +20,29 @@ This Python package provides a collection of utilities for working with Nepali D
 
 <br>
 
-> **Note:** If you want to implement date utilities and converters along with UI in your projects, then the library is available on Maven Central as _**io.github.shivathapaa/nepali-date-picker**_. KMP [Nepali Date Picker](https://github.com/shivathapaa/Nepali-Date-Picker) library provides UI for picking date and various utilities to work with Nepali Dates, and acts as a bridge between Nepali Calendar and Gregorian Calendar.
+## Need a date picker UI, or another language?
 
-> **Building for the web or JavaScript/TypeScript?** The same conversion engine and a ready-made date-picker UI are published on **npm**, generated from the shared calendar core so results match this package exactly:
->
-> - [`@nepali-date-picker/core`](https://www.npmjs.com/package/@nepali-date-picker/core) - the BS↔AD conversion and formatting engine for Node and the browser. Zero dependencies, ships TypeScript types. The JavaScript counterpart of this Python package.
-> - [`@nepali-date-picker/web-component`](https://www.npmjs.com/package/@nepali-date-picker/web-component) - a framework-agnostic `<nepali-date-picker>` suite (inline, dialog, docked, range, field, and wheel) that works in React, Vue, Angular, Svelte, and plain HTML.
->
-> ```bash
-> npm install @nepali-date-picker/core          # engine only
-> npm install @nepali-date-picker/web-component  # engine + UI
-> ```
->
-> Explore every variant in the [live demo](https://shivathapaa.github.io/Nepali-Date-Picker/demo/). Python, Kotlin/Android, and JavaScript all port the same [Nepali Date Picker](https://github.com/shivathapaa/Nepali-Date-Picker) core.
+This package is the **Python** port of the [Nepali Date Picker](https://github.com/shivathapaa/Nepali-Date-Picker)
+calendar core. The same tables are ported to Kotlin, Swift and JavaScript, so conversions match
+across all four, and every platform ships a ready-made picker UI that this package deliberately does
+not:
+
+| Platform | Guide | Packages |
+| --- | --- | --- |
+| **Python / backend** | This README | [PyPI](https://pypi.org/project/nepali_calendar_utils/) |
+| **Kotlin / Android / KMP** | [main README](https://github.com/shivathapaa/Nepali-Date-Picker/blob/main/README.md) | `io.github.shivathapaa:nepali-date-picker-ui` (Material3 pickers) and `:nepali-date-picker-core` (engine only) on [Maven Central](https://central.sonatype.com/namespace/io.github.shivathapaa) |
+| **Swift / iOS** | [README-spm.md](https://github.com/shivathapaa/Nepali-Date-Picker/blob/main/README-spm.md) | [Nepali-Date-Picker-SPM](https://github.com/shivathapaa/Nepali-Date-Picker-SPM) |
+| **JavaScript / TypeScript / web** | [README-js.md](https://github.com/shivathapaa/Nepali-Date-Picker/blob/main/README-js.md) | [`@nepali-date-picker/web-component`](https://www.npmjs.com/package/@nepali-date-picker/web-component) (framework-agnostic elements) and [`@nepali-date-picker/core`](https://www.npmjs.com/package/@nepali-date-picker/core) (engine only, the JS counterpart of this package) |
+
+Live: the [Compose demo](https://shivathapaa.github.io/Nepali-Date-Picker/) and the
+[web-component demo](https://shivathapaa.github.io/Nepali-Date-Picker/demo/).
 
 <br>
 
 <details>
   <summary><b>Table of Contents</b></summary>
 
+* [Need a date picker UI, or another language?](#need-a-date-picker-ui-or-another-language)
 * [Types/features](#typesfeatures)
 * [Installation](#installation)
 * [Documentation](#documentation)
