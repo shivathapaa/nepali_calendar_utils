@@ -1,18 +1,17 @@
 """Predicate over a date that consumers use to enable or disable individual days
 and years.
 
-Mirrors ``dev.shivathapaa.nepalidatepickerkmp.NepaliSelectableDates``. The UI in
-the Kotlin library consults this; in Python it is useful for validating whether a
-date is allowed by some rule (range, weekend, holiday, ...). The converter
-factories (``NepaliDateConverter.before_date_selectable`` etc.) and the holiday
-helpers produce instances of this type.
+Useful for validating whether a date is allowed by some rule: a range, a weekend, a
+day the institution is closed. The converter factories
+(``NepaliDateConverter.before_date_selectable`` and the like), the event helpers and
+``NepaliCalendarPolicy.as_selectable_dates`` all produce instances of this type.
 """
 
 
 class NepaliSelectableDates:
     """Base predicate. Both methods default to allowing everything.
 
-    Subclass and override, or use the converter/holiday factories which return
+    Subclass and override, or use the converter and event factories, which return
     ready-made instances.
     """
 
@@ -32,7 +31,7 @@ class NepaliSelectableDates:
 class _FunctionalSelectableDates(NepaliSelectableDates):
     """A :class:`NepaliSelectableDates` backed by two optional predicates.
 
-    Internal helper used by the converter factories and holiday wrappers so they
+    Internal helper used by the converter factories and the event wrappers so they
     do not each need a bespoke subclass. A ``None`` predicate defaults to ``True``.
     """
 

@@ -1,80 +1,48 @@
-"""Service-provider interface for supplying Nepali holiday data.
+"""The holiday provider SPI under its former names.
 
-Mirrors ``dev.shivathapaa.nepalidatepickerkmp.holiday.NepaliHolidayProvider`` and
-friends.
-
-This library ships **no holiday data** by design - Nepali public, religious, and
-regional holiday lists change year to year, and baking stale data into the library
-would not serve consumers. Implement :class:`NepaliHolidayProvider` with your own
-source (a static map, a CMS, an HR API, ...) and pass it to the helpers in
-:mod:`nepali_calendar_utils.holiday.holiday_helpers`.
+A holiday turned out to be one kind of event rather than the whole subject: the
+package also names festivals, school programmes, deadlines and birthdays, and
+whether a day is worked is now ``NepaliCalendarEvent.closes_offices`` rather than
+something the taxonomy decides. Everything here still works and resolves to the
+types in :mod:`nepali_calendar_utils.event`.
 """
 
-from dataclasses import dataclass
-from enum import Enum
 from typing import Set
 
 from nepali_calendar_utils.data.custom_calendar import SimpleDate
+from nepali_calendar_utils.event.nepali_calendar_event import (
+    NepaliCalendarEvent,
+    NepaliEventKind,
+)
+from nepali_calendar_utils.event.nepali_event_provider import (
+    NepaliEventProvider,
+    NepaliWeekend,
+)
+
+#: Former name of :class:`~nepali_calendar_utils.event.NepaliEventKind`. The members
+#: and their values are unchanged.
+HolidayKind = NepaliEventKind
+
+#: Former name of :class:`~nepali_calendar_utils.event.NepaliCalendarEvent`, which
+#: takes the same three positional arguments and adds ``closes_offices``, ``id`` and
+#: ``payload``.
+HolidayEntry = NepaliCalendarEvent
 
 
-class HolidayKind(Enum):
-    """Categorization for a :class:`HolidayEntry`.
+class NepaliHolidayProvider(NepaliEventProvider):
+    """Former name of :class:`~nepali_calendar_utils.event.NepaliEventProvider`, kept
+    as a class of its own so an implementation written against it keeps working.
 
-    Deliberately narrow - adding cases is a breaking change. If your taxonomy
-    needs more granularity, store extra fields on a wrapper type.
+    Subclasses implement :meth:`holidays` and optionally :meth:`is_holiday`, and the
+    policy, the picker wrappers and the working-day helpers reach them through
+    ``events`` and ``closes_on``. A subclass keeps the older, blunter rule that every
+    entry closes the day: ``closes_offices`` is not consulted, so an observance
+    returned from :meth:`holidays` still blocks its date and still stops a working-day
+    count. Implement :class:`~nepali_calendar_utils.event.NepaliEventProvider`
+    directly for the finer answer.
     """
 
-    #: Bank / government office is closed. Sarkari bida.
-    GOVERNMENT_PUBLIC = "government_public"
-
-    #: Religious or cultural holiday - Dashain, Tihar, Holi, Id, Christmas, etc.
-    RELIGIOUS = "religious"
-
-    #: Province- or district-level holiday, not nationally observed.
-    REGIONAL = "regional"
-
-    #: Recognized day but offices remain open (e.g. World Health Day).
-    OBSERVANCE = "observance"
-
-
-@dataclass(frozen=True)
-class HolidayEntry:
-    """A single holiday in the Nepali (Bikram Sambat) calendar.
-
-    Attributes:
-        date (SimpleDate): Bikram Sambat date of the holiday.
-        name (str): Display name (e.g. "Dashain - Vijaya Dashami").
-        kind (HolidayKind): Category - see :class:`HolidayKind`.
-    """
-
-    date: SimpleDate
-    name: str
-    kind: HolidayKind
-
-
-class NepaliHolidayProvider:
-    """Interface for supplying holiday data.
-
-    Implementations must:
-      - return a stable set for a given ``year`` (calling twice yields the same
-        contents),
-      - not raise for years outside the supported Nepali year range - return an
-        empty set instead.
-
-    Example::
-
-        class MyHolidays(NepaliHolidayProvider):
-            _by_year = {
-                2082: {
-                    HolidayEntry(SimpleDate(2082, 1, 1), "नयाँ वर्ष",
-                                 HolidayKind.GOVERNMENT_PUBLIC),
-                },
-            }
-            def holidays(self, year):
-                return self._by_year.get(year, set())
-    """
-
-    def holidays(self, year: int) -> Set[HolidayEntry]:
+    def holidays(self, year: int) -> Set[NepaliCalendarEvent]:
         """All holidays for ``year`` (BS). An empty set is a valid answer."""
         raise NotImplementedError
 
@@ -86,31 +54,31 @@ class NepaliHolidayProvider:
         """
         return any(entry.date == date for entry in self.holidays(date.year))
 
+    def events(self, year: int) -> Set[NepaliCalendarEvent]:
+        return self.holidays(year)
+
+    def closes_on(self, date: SimpleDate) -> bool:
+        return self.is_holiday(date)
+
 
 class _NoOpHolidayProvider(NepaliHolidayProvider):
     """Behaves as if no day is a holiday."""
 
-    def holidays(self, year: int) -> Set[HolidayEntry]:
+    def holidays(self, year: int) -> Set[NepaliCalendarEvent]:
         return set()
 
     def is_holiday(self, date: SimpleDate) -> bool:
         return False
 
 
-#: No-op provider singleton. Use when you want the holiday-aware APIs but have not
-#: (yet) wired a real data source.
+#: Former name of :data:`~nepali_calendar_utils.event.NoOpEventProvider`, answering
+#: to ``holidays`` and ``is_holiday`` as well.
 NoOpHolidayProvider = _NoOpHolidayProvider()
 
-
-class NepaliWeekend:
-    """Day-of-week conventions.
-
-    The library uses a 1-based-Sunday convention everywhere - Sunday = 1, ...,
-    Saturday = 7.
-    """
-
-    #: Default weekend in Nepal: Saturday only. Nepal observes a single-day
-    #: weekend, so working-day arithmetic that uses this matches what a Nepali
-    #: office counts as "5 working days from today". Pass ``frozenset({6, 7})``
-    #: for a Friday-and-Saturday weekend.
-    Default = frozenset({7})
+__all__ = [
+    "HolidayKind",
+    "HolidayEntry",
+    "NepaliHolidayProvider",
+    "NoOpHolidayProvider",
+    "NepaliWeekend",
+]

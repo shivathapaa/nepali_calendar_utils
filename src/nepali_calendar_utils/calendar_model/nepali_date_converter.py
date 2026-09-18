@@ -1054,35 +1054,29 @@ class NepaliDateConverter:
     def working_days_between(start_date, end_date, provider, weekend=None):
         """
         Number of working days in the half-open range [start_date, end_date),
-        skipping weekend days and dates flagged by ``provider``. See
-        nepali_calendar_utils.holiday.working_days_between.
+        skipping weekend days and the dates ``provider`` closes. ``provider`` may be a
+        NepaliCalendarPolicy, which carries its own weekly off days. See
+        nepali_calendar_utils.event.working_days_between.
         """
-        from nepali_calendar_utils.holiday.holiday_helpers import working_days_between
-        from nepali_calendar_utils.holiday.holiday_provider import NepaliWeekend
-        return working_days_between(
-            start_date, end_date, provider, NepaliWeekend.Default if weekend is None else weekend
-        )
+        from nepali_calendar_utils.event.event_helpers import working_days_between
+        return working_days_between(start_date, end_date, provider, weekend)
 
     @staticmethod
     def next_working_day(from_date, provider, weekend=None):
         """
-        First working day at or after ``from_date``. See
-        nepali_calendar_utils.holiday.next_working_day.
+        First working day at or after ``from_date``. ``provider`` may be a
+        NepaliCalendarPolicy, which carries its own weekly off days. See
+        nepali_calendar_utils.event.next_working_day.
         """
-        from nepali_calendar_utils.holiday.holiday_helpers import next_working_day
-        from nepali_calendar_utils.holiday.holiday_provider import NepaliWeekend
-        return next_working_day(
-            from_date, provider, NepaliWeekend.Default if weekend is None else weekend
-        )
+        from nepali_calendar_utils.event.event_helpers import next_working_day
+        return next_working_day(from_date, provider, weekend)
 
     @staticmethod
     def add_working_days(from_date, days, provider, weekend=None):
         """
         The date that is ``days`` working days from ``from_date`` (Excel WORKDAY
-        semantics). See nepali_calendar_utils.holiday.add_working_days.
+        semantics). ``provider`` may be a NepaliCalendarPolicy, which carries its own
+        weekly off days. See nepali_calendar_utils.event.add_working_days.
         """
-        from nepali_calendar_utils.holiday.holiday_helpers import add_working_days
-        from nepali_calendar_utils.holiday.holiday_provider import NepaliWeekend
-        return add_working_days(
-            from_date, days, provider, NepaliWeekend.Default if weekend is None else weekend
-        )
+        from nepali_calendar_utils.event.event_helpers import add_working_days
+        return add_working_days(from_date, days, provider, weekend)

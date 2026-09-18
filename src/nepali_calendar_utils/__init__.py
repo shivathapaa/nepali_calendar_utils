@@ -10,13 +10,15 @@ from nepali_calendar_utils.data.digit_script import (
 )
 from nepali_calendar_utils.data.nepali_date_formatter import NepaliDateFormatter, DatePattern
 from nepali_calendar_utils.nepali_selectable_dates import NepaliSelectableDates
-from nepali_calendar_utils.holiday import (
-    HolidayKind,
-    HolidayEntry,
-    NepaliHolidayProvider,
-    NoOpHolidayProvider,
+from nepali_calendar_utils.event import (
+    NepaliCalendarEvent,
+    NepaliEventKind,
+    NepaliEventProvider,
+    NoOpEventProvider,
     NepaliWeekend,
-    excluding_holidays,
+    NepaliDayStatus,
+    NepaliCalendarPolicy,
+    excluding_closures,
     excluding_weekends,
     working_days_between,
     next_working_day,
@@ -50,15 +52,42 @@ __all__ = [
     "DatePattern",
     # Selectable dates
     "NepaliSelectableDates",
-    # Holidays and working-day arithmetic
-    "HolidayKind",
-    "HolidayEntry",
-    "NepaliHolidayProvider",
-    "NoOpHolidayProvider",
+    # Calendar events, day status and working-day arithmetic
+    "NepaliCalendarEvent",
+    "NepaliEventKind",
+    "NepaliEventProvider",
+    "NoOpEventProvider",
     "NepaliWeekend",
-    "excluding_holidays",
+    "NepaliDayStatus",
+    "NepaliCalendarPolicy",
+    "excluding_closures",
     "excluding_weekends",
     "working_days_between",
     "next_working_day",
     "add_working_days",
 ]
+
+_FORMER_HOLIDAY_NAMES = frozenset(
+    {
+        "HolidayKind",
+        "HolidayEntry",
+        "NepaliHolidayProvider",
+        "NoOpHolidayProvider",
+        "excluding_holidays",
+    }
+)
+
+
+def __getattr__(name):
+    """Resolve the former holiday names from the package root.
+
+    They are no longer part of ``__all__``, so a star import brings in the event
+    surface alone, but ``from nepali_calendar_utils import HolidayEntry`` still works
+    and warns. Kept out of the eager imports above so that importing the package
+    costs nothing for code that has moved on.
+    """
+    if name in _FORMER_HOLIDAY_NAMES:
+        from nepali_calendar_utils import holiday
+
+        return getattr(holiday, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
