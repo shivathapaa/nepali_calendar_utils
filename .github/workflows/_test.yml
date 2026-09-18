@@ -44,7 +44,7 @@ jobs:
       # MINIMUM_TESTS is a floor. Adding tests never trips it; losing a file does.
       - name: Run tests
         env:
-          MINIMUM_TESTS: 320
+          MINIMUM_TESTS: 430
         run: |
           python - <<'PY'
           import os, sys, unittest
