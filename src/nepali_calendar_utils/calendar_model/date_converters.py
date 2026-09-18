@@ -463,6 +463,69 @@ class DateConverters:
         return DateConverters._english_days_in_month[month]
 
     @staticmethod
+    def _weekday_of(target: date) -> int:
+        """The weekday of ``target`` numbered from Sunday as 1, which is how this library counts
+        weekdays in both calendars."""
+        return target.isoweekday() % 7 + 1
+
+    @staticmethod
+    def calculate_english_month_details(english_yyyy: int, english_mm: int) -> Tuple[int, int, int]:
+        """The grid geometry of a Gregorian month as ``(total_days, first_weekday, last_weekday)``,
+        counting Sunday as 1."""
+        total_days_in_month = DateConverters.get_total_days_in_english_month(english_yyyy, english_mm)
+        first_day_of_month = DateConverters._weekday_of(date(english_yyyy, english_mm, 1))
+        last_day_of_month = (first_day_of_month + total_days_in_month - 1) % 7
+        last_day_of_month = 7 if last_day_of_month == 0 else last_day_of_month
+        return total_days_in_month, first_day_of_month, last_day_of_month
+
+    @staticmethod
+    def english_day_of_year(year: int, month: int, day_of_month: int) -> int:
+        return sum(
+            DateConverters.get_total_days_in_english_month(year, preceding)
+            for preceding in range(1, month)
+        ) + day_of_month
+
+    @staticmethod
+    def get_english_calendar(english_yyyy: int, english_mm: int, english_dd: int) -> CustomCalendar:
+        """A fully populated Gregorian CustomCalendar read straight from a Gregorian date.
+
+        Unlike convert_nepali_to_english this needs no Bikram Sambat anchor, so it answers for any
+        year the Gregorian calendar has. The derived fields use the same helpers as the Bikram
+        Sambat side, so day_of_week, week_of_month and week_of_year mean the same in both calendars.
+
+        Raises ValueError when ``english_dd`` is not a day of that month.
+        """
+        total_days_in_month, first_day_of_month, last_day_of_month = (
+            DateConverters.calculate_english_month_details(english_yyyy, english_mm)
+        )
+        if not (1 <= english_dd <= total_days_in_month):
+            raise ValueError(
+                f"Day of Month {english_dd} is out of bound. "
+                f"There is no {english_dd} in {english_mm} month."
+            )
+
+        day_of_year = DateConverters.english_day_of_year(english_yyyy, english_mm, english_dd)
+        day_of_week = (first_day_of_month + english_dd - 1) % 7
+        day_of_week = 7 if day_of_week == 0 else day_of_week
+
+        return CustomCalendar(
+            year=english_yyyy,
+            month=english_mm,
+            day_of_month=english_dd,
+            era=1,
+            first_day_of_month=first_day_of_month,
+            last_day_of_month=last_day_of_month,
+            total_days_in_month=total_days_in_month,
+            day_of_week_in_month=(english_dd - 1) // 7 + 1,
+            day_of_week=day_of_week,
+            day_of_year=day_of_year,
+            week_of_month=DateConverters.calculate_week_of_month(english_dd, first_day_of_month),
+            week_of_year=DateConverters.calculate_week_of_year(
+                day_of_year, DateConverters._weekday_of(date(english_yyyy, 1, 1))
+            ),
+        )
+
+    @staticmethod
     def is_nepali_calendar_in_conversion_range(nepali_yyyy: int, nepali_mm: int, nepali_dd: int) -> bool:
         return (
             DateConverters.min_nepali_year <= nepali_yyyy <= DateConverters.max_nepali_year

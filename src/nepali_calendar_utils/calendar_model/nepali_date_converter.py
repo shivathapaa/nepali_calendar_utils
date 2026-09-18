@@ -472,7 +472,13 @@ class NepaliDateConverter:
             - "2011-11-04 00:05:23.283+00:00"
             - "2011-11-04T00:05:23+04:00"
         :return: CustomDateTime representing the English calendar and Nepali time.
-        :raises ValueError: If the input string cannot be parsed or date boundaries are exceeded.
+
+        The result is a Gregorian date and a Nepal-time clock reading, neither of which needs the
+        Bikram Sambat conversion table, so any year parses. Use get_nepali_date_time_from_iso_format
+        for the Bikram Sambat reading, which is limited to
+        NepaliCalendarDefaults.EnglishYearRange.
+
+        :raises ValueError: If the input string cannot be parsed.
 
         Example::
 

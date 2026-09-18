@@ -301,15 +301,8 @@ class NepaliCalendarModel:
             instant = instant.replace(tzinfo=NEPAL_TIME_ZONE)
         local_date_time = instant.astimezone(NEPAL_TIME_ZONE)
 
-        nepali_calendar = NepaliCalendarModel.convert_to_nepali_calendar(
-            english_year=local_date_time.year,
-            english_month=local_date_time.month,
-            english_day=local_date_time.day
-        )
-        english_calendar = NepaliCalendarModel.convert_to_english_calendar(
-            nepali_year=nepali_calendar.year,
-            nepali_month=nepali_calendar.month,
-            nepali_day=nepali_calendar.day_of_month
+        english_calendar = DateConverters.get_english_calendar(
+            local_date_time.year, local_date_time.month, local_date_time.day
         )
         simple_nepali_time = SimpleTime(
             hour=local_date_time.hour,
