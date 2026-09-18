@@ -211,6 +211,16 @@ nepali_date_converter = NepaliDateConverter()
 convertedNepaliDate = nepali_date_converter.convert_english_to_nepali(2021, 6, 21) # returns CustomCalendar
 
 convertedEnglishDate = nepali_date_converter.convert_nepali_to_english(2081, 3, 21) # returns CustomCalendar
+
+# Read a Gregorian date directly, without going through Bikram Sambat. This needs no conversion
+# anchor, so it answers for any year, not only those the conversion table covers.
+english_calendar = NepaliDateConverter.get_english_calendar(2024, 9, 9) # returns CustomCalendar
+
+# The two calendars start mid-year relative to each other, so a year inside EnglishYearRange is not
+# enough to know a date converts. 1913-01-01 through 1913-04-12 are inside the range yet have no
+# Bikram Sambat equivalent.
+NepaliDateConverter.is_english_date_convertible(1913, 4, 12) # returns False
+NepaliDateConverter.is_english_date_convertible(1913, 4, 13) # returns True
 ```
 
 ### Get CustomCalendar for details using Nepali Date
