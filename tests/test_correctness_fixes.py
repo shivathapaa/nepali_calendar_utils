@@ -91,17 +91,5 @@ class TestClearErrors(unittest.TestCase):
             NepaliDateConverter.get_nepali_month_calendar(2081, 0)
 
 
-class TestMemoizationParity(unittest.TestCase):
-    """The cached month details must equal a fresh computation everywhere."""
-
-    def test_cache_matches_fresh_compute(self):
-        for year in (1970, 1971, 2000, 2081, 2100):
-            for month in range(1, 13):
-                with self.subTest(year=year, month=month):
-                    cached = DateConverters.calculate_nepali_month_details(year, month)
-                    fresh = DateConverters._compute_nepali_month_details(year, month)
-                    self.assertEqual(fresh, cached)
-
-
 if __name__ == "__main__":
     unittest.main()
