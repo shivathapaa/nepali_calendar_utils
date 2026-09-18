@@ -296,9 +296,9 @@ class DateConverters:
         month_details = DateConverters.calculate_nepali_month_details(year, month)
 
         if adjust_month:
-            new_day_of_month = min(day_of_month, month_details.total_days_in_month)
+            new_day_of_month = max(1, min(day_of_month, month_details.total_days_in_month))
         else:
-            if day_of_month > month_details.total_days_in_month:
+            if not (1 <= day_of_month <= month_details.total_days_in_month):
                 raise ValueError(f"Day {day_of_month} is out of range for month {month}.")
             new_day_of_month = day_of_month
 

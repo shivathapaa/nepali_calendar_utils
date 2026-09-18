@@ -97,6 +97,28 @@ class TestNepaliMonthDetails(unittest.TestCase):
                 ):
                     NepaliDateConverter.get_nepali_calendar(year, month, total_days + 1)
 
+    def test_day_below_one_raises(self):
+        """A day number below one is not a day of the month, so it is rejected rather than carried
+        into a calendar whose derived fields would then describe nothing."""
+        for day_of_month in (0, -1, -5, -32):
+            with self.subTest(day_of_month=day_of_month):
+                with self.assertRaises(ValueError):
+                    NepaliDateConverter.get_nepali_calendar(2081, 5, day_of_month)
+
+    def test_day_below_one_raises_for_every_month_of_a_sample_of_years(self):
+        for year in (1970, 2000, 2082, 2100):
+            for month in range(1, 13):
+                with self.subTest(year=year, month=month):
+                    with self.assertRaises(ValueError):
+                        NepaliDateConverter.get_nepali_calendar(year, month, 0)
+
+    def test_both_calendars_reject_a_day_below_one(self):
+        """Both calendars answer the same way at the bottom of a month."""
+        with self.assertRaises(ValueError):
+            NepaliDateConverter.get_nepali_calendar(2081, 5, 0)
+        with self.assertRaises(ValueError):
+            NepaliDateConverter.get_english_calendar(2024, 5, 0)
+
     def test_last_day_of_every_month_is_accepted(self):
         for year in SUPPORTED_YEARS:
             for month in range(1, 13):
