@@ -146,14 +146,25 @@ class NepaliCalendarModel:
         
     @staticmethod
     def format_nepali_date(year, month, day_of_month, day_of_week, locale: NepaliDateLocale) -> str:
-        show_month_name = locale.date_format in [
+        return NepaliCalendarModel._format_date(
+            year, month, day_of_month, day_of_week, locale, locale.language.months
+        )
+
+    @staticmethod
+    def _format_date(
+        year, month, day_of_month, day_of_week, locale: NepaliDateLocale, month_names
+    ) -> str:
+        """Write a date in ``locale.date_format``, naming its month from ``month_names`` and
+        rendering every numeral in ``locale.resolved_digit_script``."""
+        show_month_name = locale.date_format in (
             NepaliDateFormatStyle.FULL,
             NepaliDateFormatStyle.LONG,
-            NepaliDateFormatStyle.MEDIUM
-        ]
+            NepaliDateFormatStyle.MEDIUM,
+        )
 
         weekday = locale.language.weekdays[day_of_week - 1]
-        localized_month = locale.language.months[month - 1]
+        localized_month = month_names[month - 1]
+        digit_script = locale.resolved_digit_script
 
         weekday_name = {
             NameFormat.FULL: weekday.full,
@@ -165,13 +176,12 @@ class NepaliCalendarModel:
             NameFormat.SHORT: localized_month.short,
         }.get(locale.month_name, localized_month.full)
 
-        day = NepaliCalendarModel.localize_number(
-            str(day_of_month) if show_month_name else str(day_of_month).zfill(2),
-            locale.language
+        day = digit_script.localize(
+            str(day_of_month) if show_month_name else str(day_of_month).zfill(2)
         )
 
-        month_num = NepaliCalendarModel.localize_number(str(month).zfill(2), locale.language)
-        localized_year = NepaliCalendarModel.localize_number(str(year), locale.language)
+        month_num = digit_script.localize(str(month).zfill(2))
+        localized_year = digit_script.localize(str(year))
         short_year = localized_year[-2:]
 
         return {
@@ -198,44 +208,9 @@ class NepaliCalendarModel:
 
     @staticmethod
     def format_english_date(year, month, day_of_month, day_of_week, locale: NepaliDateLocale) -> str:
-        language = locale.language
-        show_month_name = locale.date_format in [
-            NepaliDateFormatStyle.FULL,
-            NepaliDateFormatStyle.LONG,
-            NepaliDateFormatStyle.MEDIUM
-        ]
-
-        weekday = language.weekdays[day_of_week - 1]
-        localized_month = language.english_months[month - 1]
-
-        weekday_name = {
-            NameFormat.FULL: weekday.full,
-            NameFormat.MEDIUM: weekday.medium,
-            NameFormat.SHORT: weekday.short,
-        }[locale.week_day_name]
-
-        month_name = {
-            NameFormat.SHORT: localized_month.short,
-        }.get(locale.month_name, localized_month.full)
-
-        day = NepaliCalendarModel.localize_number(
-            str(day_of_month) if show_month_name else str(day_of_month).zfill(2),
-            language
+        return NepaliCalendarModel._format_date(
+            year, month, day_of_month, day_of_week, locale, locale.language.english_months
         )
-
-        month_num = NepaliCalendarModel.localize_number(str(month).zfill(2), language)
-        full_year = NepaliCalendarModel.localize_number(str(year), language)
-        short_year = full_year[-2:]
-
-        return {
-            NepaliDateFormatStyle.FULL: f"{weekday_name}, {month_name} {day}, {full_year}",
-            NepaliDateFormatStyle.LONG: f"{month_name} {day}, {full_year}",
-            NepaliDateFormatStyle.MEDIUM: f"{full_year} {month_name} {day}",
-            NepaliDateFormatStyle.SHORT_MDY: f"{month_num}/{day}/{full_year}",
-            NepaliDateFormatStyle.SHORT_YMD: f"{full_year}/{month_num}/{day}",
-            NepaliDateFormatStyle.COMPACT_MDY: f"{month_num}/{day}/{short_year}",
-            NepaliDateFormatStyle.COMPACT_YMD: f"{short_year}/{month_num}/{day}",
-        }[locale.date_format]
 
     @staticmethod
     def format_english_date_nepali_time_to_iso_format(english_date: SimpleDate, time: SimpleTime) -> str:
