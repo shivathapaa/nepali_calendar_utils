@@ -1,5 +1,6 @@
 from nepali_calendar_utils.data.custom_calendar import *
 from nepali_calendar_utils.calendar_model.nepali_calendar_model import NepaliCalendarModel
+from nepali_calendar_utils.calendar_model.date_converters import DateConverters
 from datetime import date
 from nepali_calendar_utils.data.nepali_date_locale import NameFormat, NepaliDateLocale, NepaliCalendarUtilsLang
 from nepali_calendar_utils.data.digit_script import DigitScript, to_latin_digits as _to_latin_digits
@@ -112,6 +113,50 @@ class NepaliDateConverter:
             NepaliMonthCalendar: Details of the specified Nepali month.
         """
         return NepaliCalendarModel.get_nepali_month(nepali_year, nepali_month)
+
+    @staticmethod
+    def get_english_calendar(english_yyyy: int, english_mm: int, english_dd: int) -> CustomCalendar:
+        """
+        Gets the English calendar representation of an English date.
+
+        Unlike convert_nepali_to_english, which starts from a Bikram Sambat date, this reads the
+        Gregorian date directly and needs no conversion anchor, so it answers for any year. The
+        derived fields (day of week, day of year, week of month and week of year) follow the same
+        definitions the Bikram Sambat calendars use.
+
+        Args:
+            english_yyyy (int): English year.
+            english_mm (int): English month (1 for January, 12 for December).
+            english_dd (int): Day of the month.
+
+        Returns:
+            CustomCalendar: The English calendar for that date.
+
+        Raises:
+            ValueError: If the month or day is not a real day of that month.
+        """
+        return DateConverters.get_english_calendar(english_yyyy, english_mm, english_dd)
+
+    @staticmethod
+    def is_english_date_convertible(english_yyyy: int, english_mm: int, english_dd: int) -> bool:
+        """
+        Reports whether an English date has a Bikram Sambat equivalent in the supported table.
+
+        NepaliCalendarDefaults.EnglishYearRange alone is not a sufficient check: the calendars start
+        mid-year relative to each other, so 1913-01-01 through 1913-04-12 sit inside the year range
+        yet cannot be converted.
+
+        Args:
+            english_yyyy (int): English year.
+            english_mm (int): English month (1-12).
+            english_dd (int): Day of the month.
+
+        Returns:
+            bool: True when convert_english_to_nepali accepts the date.
+        """
+        return DateConverters.is_english_date_in_conversion_range(
+            english_yyyy, english_mm, english_dd
+        )
 
     @staticmethod
     def get_total_days_in_nepali_month(year: int, month: int) -> int:
