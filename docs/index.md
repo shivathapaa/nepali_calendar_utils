@@ -2,7 +2,7 @@
 
 Utilities for working with Nepali (Bikram Sambat) dates: BS to AD conversion, month
 details, locale-aware formatting, date arithmetic, digit-script localization, a
-text-field date formatter, and a holiday provider SPI with working-day helpers.
+text-field date formatter, and a calendar-event SPI with working-day helpers.
 
 This is the pure-Python port of the `:core` module of the sibling Kotlin Multiplatform
 project, [Nepali-Date-Picker](https://github.com/shivathapaa/Nepali-Date-Picker). The

@@ -9,6 +9,6 @@ regardless of the defining module.
 
 converter
 data
-holiday
+event
 selectable_dates
 ```

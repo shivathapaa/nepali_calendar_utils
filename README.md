@@ -67,9 +67,10 @@ Few of them are listed below:
 - `DigitScript` - Numeral script (`LATIN` / `DEVANAGARI`) decoupled from language, with digit localization helpers.
 - `NepaliDateFormatter` - Parse and format `SimpleDate` for short numeric text-field input (`YYYY/MM/DD` and friends).
 - `NepaliSelectableDates` - Predicate for enabling/disabling dates, with before/after/range factories.
-- Holiday provider SPI (`NepaliHolidayProvider`, `HolidayEntry`, `HolidayKind`, `NepaliWeekend`) and working-day arithmetic (`working_days_between`, `next_working_day`, `add_working_days`).
+- Calendar-event SPI (`NepaliEventProvider`, `NepaliCalendarEvent`, `NepaliEventKind`, `NepaliWeekend`) with multi-day spans, and working-day arithmetic (`working_days_between`, `next_working_day`, `add_working_days`).
+- `NepaliCalendarPolicy` and `NepaliDayStatus` - the week an institution keeps plus the events it names, answering for one day or a whole month.
 
-> **New in 3.0.0:** brings the package to parity with the Kotlin core 3.1.0 release - digit scripts, a text-field date formatter, a holiday provider SPI with working-day helpers, selectable-date factories, `SimpleDate` ordering, and several correctness fixes. See the [release notes](https://github.com/shivathapaa/nepali_calendar_utils/releases).
+> **New in 3.3.0:** a holiday is now one kind of calendar event. `NepaliCalendarEvent` says whether a day is worked through `closes_offices` rather than leaving it to the category, `NepaliCalendarPolicy` states a week and an event list together and answers `status_of`, `month_status` and the working-day helpers from both, and `spanning_days` / `spanning_through` expand a festival or a leave that runs longer than a day. The 3.0.0 holiday names keep working. See the [release notes](https://github.com/shivathapaa/nepali_calendar_utils/releases).
 
 
 ## Installation
@@ -104,7 +105,7 @@ The full API reference is published at
 
 - [`NepaliDateConverter`](https://shivathapaa.github.io/nepali_calendar_utils/api/converter.html) - the main facade (conversion, formatting, comparison, digit scripts, selectable-date factories, working-day helpers).
 - [Data types](https://shivathapaa.github.io/nepali_calendar_utils/api/data.html) - `CustomCalendar`, `SimpleDate`, `SimpleTime`, `NepaliMonthCalendar`, `DigitScript`, `NepaliDateFormatter`, locale types.
-- [Holiday SPI](https://shivathapaa.github.io/nepali_calendar_utils/api/holiday.html) - `NepaliHolidayProvider` and working-day arithmetic.
+- [Events and working days](https://shivathapaa.github.io/nepali_calendar_utils/api/event.html) - `NepaliEventProvider`, `NepaliCalendarPolicy`, spans and working-day arithmetic.
 - [Selectable dates](https://shivathapaa.github.io/nepali_calendar_utils/api/selectable_dates.html) - `NepaliSelectableDates`.
 
 Release notes live on the [releases page](https://github.com/shivathapaa/nepali_calendar_utils/releases).
@@ -484,21 +485,23 @@ before.is_selectable_date(cal)  # True
 before.is_selectable_year(2082) # False
 ```
 
-#### Holidays and working-day arithmetic
+#### Events, holidays and working-day arithmetic
 ```python
 from nepali_calendar_utils import (
     NepaliDateConverter, SimpleDate,
-    NepaliHolidayProvider, HolidayEntry, HolidayKind, NepaliWeekend,
+    NepaliEventProvider, NepaliCalendarEvent, NepaliEventKind, NepaliWeekend,
+    NepaliCalendarPolicy,
     working_days_between, next_working_day, add_working_days,
-    excluding_weekends, excluding_holidays, NepaliSelectableDates,
+    excluding_weekends, excluding_closures, NepaliSelectableDates,
 )
 
-# No holiday data ships by design - supply your own provider.
-class MyHolidays(NepaliHolidayProvider):
-    def holidays(self, year):
-        return {HolidayEntry(SimpleDate(2082, 1, 1), "नयाँ वर्ष", HolidayKind.GOVERNMENT_PUBLIC)}
+# No event data ships by design - supply your own provider.
+class MyEvents(NepaliEventProvider):
+    def events(self, year):
+        return {NepaliCalendarEvent(SimpleDate(2082, 1, 1), "नयाँ वर्ष",
+                                    NepaliEventKind.GOVERNMENT_PUBLIC)}
 
-provider = MyHolidays()
+provider = MyEvents()
 
 # Excel WORKDAY semantics; weekend defaults to Saturday only (Nepal's single-day weekend).
 working_days_between(SimpleDate(2082, 1, 1), SimpleDate(2082, 1, 15), provider)  # int
@@ -508,8 +511,22 @@ add_working_days(SimpleDate(2082, 1, 1), 5, provider)                           
 # Pass a Friday+Saturday weekend explicitly:
 add_working_days(SimpleDate(2082, 1, 1), 5, provider, weekend=frozenset({6, 7}))
 
-# Compose with selectable dates:
-selectable = excluding_holidays(excluding_weekends(NepaliSelectableDates()), provider)
+# A policy states the week and the events together, and the helpers take it whole.
+school = NepaliCalendarPolicy(frozenset({7, 1}), provider)
+school.status_of(SimpleDate(2082, 1, 1)).names          # ['नयाँ वर्ष']
+school.month_status(2082, 1)                            # one status per day of the month
+school.is_non_working_day(SimpleDate(2082, 1, 1))       # True
+next_working_day(SimpleDate(2082, 1, 1), school)        # SimpleDate
+
+# A festival or a leave that runs longer than a day expands to one entry per day.
+NepaliCalendarEvent(SimpleDate(2082, 6, 17), "Dashain", NepaliEventKind.RELIGIOUS,
+                    id="dashain-2082").spanning_days(10)
+NepaliCalendarEvent(SimpleDate(2082, 6, 17), "Annual leave",
+                    NepaliEventKind.OBSERVANCE).spanning_through(SimpleDate(2082, 6, 26))
+
+# Compose with selectable dates, or let the policy do it:
+selectable = excluding_closures(excluding_weekends(NepaliSelectableDates()), provider)
+selectable = school.as_selectable_dates()
 ```
 
 And there is always more to explore... ;)
