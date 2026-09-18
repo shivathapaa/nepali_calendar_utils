@@ -13,6 +13,28 @@ from nepali_calendar_utils.calendar_model.date_converters import DateConverters
 # FixedOffsetTimeZone(+05:45) for the same reason.
 NEPAL_TIME_ZONE = timezone(timedelta(hours=5, minutes=45))
 
+# Every token get_date_format_replacements produces, and every token
+# get_time_format_replacements produces, in the order the matcher prefers them.
+DATE_FORMAT_TOKENS = (
+    "yyyy", "yy", "MMMM", "MMM", "MM", "M", "dd", "d", "D",
+    "EEEEE", "EEEE", "E", "ee", "e", "w",
+)
+TIME_FORMAT_TOKENS = (
+    "HH", "H", "hh", "h", "mm", "m", "ss", "s",
+    "SSSS", "SSS", "SS", "S", "a", "A",
+)
+
+
+def _token_regex(tokens):
+    """Longest token first, so ``yyyy`` wins over ``yy`` and ``EEEE`` over ``E``. Alternation takes
+    the leftmost branch that matches, which makes the sort the precedence rule."""
+    return re.compile("|".join(map(re.escape, sorted(tokens, key=len, reverse=True))))
+
+
+_DATE_TOKEN_REGEX = _token_regex(DATE_FORMAT_TOKENS)
+_TIME_TOKEN_REGEX = _token_regex(TIME_FORMAT_TOKENS)
+_DATE_TIME_TOKEN_REGEX = _token_regex(DATE_FORMAT_TOKENS + TIME_FORMAT_TOKENS)
+
 class NepaliCalendarModel:
     def __init__(self, locale: NepaliDateLocale = NepaliDateLocale()):
         self.locale = locale
@@ -302,7 +324,7 @@ class NepaliCalendarModel:
     def format_time_by_unicode_pattern(unicode_pattern: str, time: SimpleTime, language: NepaliCalendarUtilsLang=NepaliCalendarUtilsLang.ENGLISH) -> str:
         calendar_model = NepaliCalendarModel()
         replacements = calendar_model.get_time_format_replacements(time, language)
-        return calendar_model.apply_replacements(unicode_pattern, replacements)
+        return calendar_model.apply_replacements(unicode_pattern, replacements, _TIME_TOKEN_REGEX)
 
     @staticmethod
     def format_english_date_by_unicode_pattern(unicode_pattern: str, calendar: CustomCalendar, language: NepaliCalendarUtilsLang=NepaliCalendarUtilsLang.ENGLISH) -> str:
@@ -312,7 +334,7 @@ class NepaliCalendarModel:
             language=language,
             on_get_month_names=lambda i: language.english_months[i]
         )
-        return calendar_model.apply_replacements(unicode_pattern, replacements)
+        return calendar_model.apply_replacements(unicode_pattern, replacements, _DATE_TOKEN_REGEX)
 
     @staticmethod
     def format_nepali_date_by_unicode_pattern(unicode_pattern: str, calendar: CustomCalendar, language: NepaliCalendarUtilsLang=NepaliCalendarUtilsLang.NEPALI) -> str:
@@ -322,7 +344,7 @@ class NepaliCalendarModel:
             language=language,
             on_get_month_names=lambda i: language.months[i]
         )
-        return calendar_model.apply_replacements(unicode_pattern, replacements)
+        return calendar_model.apply_replacements(unicode_pattern, replacements, _DATE_TOKEN_REGEX)
 
     @staticmethod
     def format_english_datetime_by_unicode_pattern(unicode_pattern: str, calendar: CustomCalendar, time:SimpleTime=None, language: NepaliCalendarUtilsLang=NepaliCalendarUtilsLang.ENGLISH) -> str:
@@ -334,7 +356,11 @@ class NepaliCalendarModel:
         )
         if time is not None:
             replacements.update(calendar_model.get_time_format_replacements(time, language))
-        return calendar_model.apply_replacements(unicode_pattern, replacements)
+        return calendar_model.apply_replacements(
+            unicode_pattern,
+            replacements,
+            _DATE_TIME_TOKEN_REGEX if time is not None else _DATE_TOKEN_REGEX,
+        )
 
     @staticmethod
     def format_nepali_datetime_by_unicode_pattern(unicode_pattern: str, calendar: CustomCalendar, time:SimpleTime=None, language: NepaliCalendarUtilsLang=NepaliCalendarUtilsLang.NEPALI) -> str:
@@ -346,7 +372,11 @@ class NepaliCalendarModel:
         )
         if time is not None:
             replacements.update(calendar_model.get_time_format_replacements(time, language))
-        return calendar_model.apply_replacements(unicode_pattern, replacements)
+        return calendar_model.apply_replacements(
+            unicode_pattern,
+            replacements,
+            _DATE_TIME_TOKEN_REGEX if time is not None else _DATE_TOKEN_REGEX,
+        )
 
     @staticmethod
     def compare_dates_custom(calendar: CustomCalendar, year, month, day_of_month):
@@ -504,11 +534,21 @@ class NepaliCalendarModel:
         }
 
     @staticmethod
-    def apply_replacements(unicode_pattern: str, replacements: dict[str, str]) -> str:
-        sorted_keys = sorted(replacements.keys(), key=len, reverse=True)
-        pattern_regex = re.compile("|".join(map(re.escape, sorted_keys)))
+    def apply_replacements(
+        unicode_pattern: str, replacements: dict[str, str], token_regex=None
+    ) -> str:
+        """Replace every token ``token_regex`` finds in ``unicode_pattern`` with its entry in
+        ``replacements``.
 
-        return pattern_regex.sub(lambda m: replacements.get(m.group(0), m.group(0)), unicode_pattern)
+        Anything the matcher does not match is literal, and a pattern is read once rather than
+        rescanned, so a replacement that happens to contain a token is left alone. ``token_regex``
+        defaults to one built from the keys of ``replacements``.
+        """
+        if token_regex is None:
+            sorted_keys = sorted(replacements.keys(), key=len, reverse=True)
+            token_regex = re.compile("|".join(map(re.escape, sorted_keys)))
+
+        return token_regex.sub(lambda m: replacements.get(m.group(0), m.group(0)), unicode_pattern)
     
     @staticmethod
     def get_nepali_am_pm(hour: int) -> str:
