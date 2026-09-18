@@ -1,4 +1,4 @@
-"""Mirrors the Kotlin core CalendarPropertiesTests."""
+"""Month lengths, leap years, and the derived fields a calendar carries."""
 
 import unittest
 

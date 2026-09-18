@@ -1,4 +1,5 @@
-"""Mirrors the Kotlin core UnicodePatternTokenTests."""
+"""What each unicode pattern token expands to, which token wins when one is a prefix of another,
+and which tokens each entry point will replace."""
 
 import unittest
 

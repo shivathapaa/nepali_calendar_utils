@@ -1,4 +1,4 @@
-"""Mirrors the Kotlin core ParseAndLocaleTests."""
+"""Parsing date strings, localizing numerals, and naming weekdays and months."""
 
 import unittest
 

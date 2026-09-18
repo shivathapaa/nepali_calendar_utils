@@ -1,4 +1,4 @@
-"""Mirrors the Kotlin core WeekOfYearTests.
+"""The weekly and yearly fields a calendar carries.
 
 The weekly fields only mean anything if the weekday is right, so day-of-week and
 day-of-year are first pinned to sources outside this library (the Gregorian date

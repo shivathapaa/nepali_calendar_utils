@@ -1,4 +1,5 @@
-"""Mirrors the Kotlin core EnglishCalendarEquivalenceTests and its full-range companion."""
+"""Reading a Gregorian calendar directly has to match converting a Bikram Sambat date back,
+field for field, on every date the table covers."""
 
 import unittest
 

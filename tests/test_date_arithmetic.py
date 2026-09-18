@@ -1,4 +1,4 @@
-"""Mirrors the Kotlin core DateArithmeticTests."""
+"""Adding and subtracting days across month and year boundaries."""
 
 import unittest
 

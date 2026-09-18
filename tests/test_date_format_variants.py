@@ -1,4 +1,5 @@
-"""Mirrors the Kotlin core DateFormatVariantTests."""
+"""Every combination the two long-form date formatters accept: style, weekday and month name
+format, language, and digit script."""
 
 import unittest
 

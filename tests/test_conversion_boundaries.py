@@ -1,4 +1,5 @@
-"""Mirrors the Kotlin core ConversionBoundaryTests, plus exhaustive round-trips."""
+"""The edges of the supported range, the dates just outside it, and round trips in both
+directions."""
 
 import unittest
 from datetime import date

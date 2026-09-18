@@ -1,4 +1,4 @@
-"""Mirrors the Kotlin core IsoEnglishCalendarTests."""
+"""Reading a Gregorian calendar and a Nepal-time clock out of an ISO timestamp."""
 
 import unittest
 
@@ -11,12 +11,9 @@ LAST_ENGLISH_YEAR = NepaliCalendarDefaults.EnglishYearRange[-1]
 
 
 class TestIsoEnglishCalendar(unittest.TestCase):
-    """Reading a Gregorian calendar out of an ISO timestamp.
-
-    The result is a Gregorian date and a Nepal-time clock reading, neither of which needs the
-    Bikram Sambat table, so the span accepted here is wider than EnglishYearRange. The Bikram
-    Sambat counterpart still needs the table and still refuses timestamps outside it.
-    """
+    """The result needs no Bikram Sambat table, so the span accepted here is wider than
+    EnglishYearRange. The Bikram Sambat counterpart still needs the table and still refuses
+    timestamps outside it."""
 
     def test_year_past_the_conversion_table_still_resolves(self):
         beyond = LAST_ENGLISH_YEAR + 7

@@ -1,4 +1,4 @@
-"""Mirrors the Kotlin core NepaliMonthDetailsTests."""
+"""Month geometry across the whole Bikram Sambat table, and the year bounds around it."""
 
 import unittest
 
@@ -13,11 +13,8 @@ SUPPORTED_YEARS = range(FIRST_YEAR, LAST_YEAR + 1)
 
 
 class TestNepaliMonthDetails(unittest.TestCase):
-    """Month geometry for the whole Bikram Sambat table, and the year bounds around it.
-
-    The day-count table reaches one year further back than the supported range, so the year checks
-    here are what stop a month lookup from answering for a year no caller can ask about.
-    """
+    """The day-count table reaches one year further back than the supported range, so the year
+    checks here are what stop a month lookup from answering for a year no caller can ask about."""
 
     def test_day_count_table_reaches_one_year_below_the_supported_range(self):
         self.assertIn(

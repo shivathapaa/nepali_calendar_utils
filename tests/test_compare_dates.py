@@ -1,4 +1,4 @@
-"""Mirrors the Kotlin core CompareDatesTests, adapted to the Python compare API.
+"""Comparing dates, in every form the compare API accepts.
 
 Python exposes:
   - NepaliCalendarModel().compare_dates_custom(calendar, year, month, day)
