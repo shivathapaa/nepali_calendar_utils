@@ -205,6 +205,12 @@ class DateConverters:
      
     @staticmethod   
     def initialize_starting_dates(target_year: int, is_nepali_date: bool) -> tuple:
+        """The English and Bikram Sambat pair a conversion counts forward from, taken one year
+        before ``target_year``.
+
+        Every supported year carries its own anchor, so a corrected month length in
+        days_in_month_map changes dates in that year and the one after it, and no year beyond.
+        """
         reference_date = (
             nepali_date_map.get(target_year - 1)
             if is_nepali_date
@@ -559,7 +565,7 @@ class DateConverters:
         return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
 
 
-def _initialize_caches():
+def _build_cumulative_day_table():
     """Build the cumulative-day table DateConverters.calculate_day_offset reads. Runs once at
     import."""
     cumulative = []
@@ -570,4 +576,4 @@ def _initialize_caches():
     DateConverters._cumulative_days_at_year_start = cumulative
 
 
-_initialize_caches()
+_build_cumulative_day_table()
