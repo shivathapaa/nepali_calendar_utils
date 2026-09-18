@@ -69,6 +69,50 @@ class TestEnglishCalendarEquivalence(unittest.TestCase):
             DateConverters.get_english_calendar(2023, 2, 29)
         self.assertEqual(29, DateConverters.get_english_calendar(2024, 2, 29).day_of_month)
 
+    def test_the_facade_exposes_the_direct_read(self):
+        self.assertEqual(
+            DateConverters.get_english_calendar(2024, 9, 9),
+            NepaliDateConverter.get_english_calendar(2024, 9, 9),
+        )
+        with self.assertRaises(ValueError):
+            NepaliDateConverter.get_english_calendar(2024, 5, 0)
+
+    def test_convertibility_reports_the_dates_the_converter_accepts(self):
+        anchor = NepaliCalendarDefaults.startingEnglishCalendar
+        self.assertFalse(
+            NepaliDateConverter.is_english_date_convertible(
+                anchor.year, anchor.month, anchor.day_of_month - 1
+            ),
+            "The day before the anchor sits inside the year range yet cannot convert",
+        )
+        self.assertTrue(
+            NepaliDateConverter.is_english_date_convertible(
+                anchor.year, anchor.month, anchor.day_of_month
+            )
+        )
+        self.assertFalse(NepaliDateConverter.is_english_date_convertible(anchor.year, 1, 1))
+        self.assertFalse(
+            NepaliDateConverter.is_english_date_convertible(
+                NepaliCalendarDefaults.EnglishYearRange[-1] + 1, 1, 1
+            )
+        )
+
+    def test_convertibility_agrees_with_the_converter_on_every_boundary_date(self):
+        """A date the report calls convertible has to convert, and one it rejects has to raise."""
+        samples = [
+            (1912, 12, 31), (1913, 1, 1), (1913, 4, 12), (1913, 4, 13), (1913, 4, 14),
+            (2043, 12, 31), (2044, 1, 1), (2024, 2, 29), (2024, 1, 1),
+        ]
+        for year, month, day in samples:
+            with self.subTest(date=f"{year}-{month}-{day}"):
+                convertible = NepaliDateConverter.is_english_date_convertible(year, month, day)
+                try:
+                    NepaliDateConverter.convert_english_to_nepali(year, month, day)
+                    converted = True
+                except ValueError:
+                    converted = False
+                self.assertEqual(convertible, converted)
+
 
 if __name__ == "__main__":
     unittest.main()
