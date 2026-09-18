@@ -39,5 +39,28 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .
 
+      # Counted rather than trusted: on Python 3.11 a discovery that finds nothing still exits 0,
+      # and a test file renamed out of the test_*.py pattern disappears from the run silently.
+      # MINIMUM_TESTS is a floor. Adding tests never trips it; losing a file does.
       - name: Run tests
-        run: python -m unittest discover -s tests -v
+        env:
+          MINIMUM_TESTS: 320
+        run: |
+          python - <<'PY'
+          import os, sys, unittest
+
+          minimum = int(os.environ["MINIMUM_TESTS"])
+          suite = unittest.defaultTestLoader.discover("tests")
+          discovered = suite.countTestCases()
+          print(f"Discovered {discovered} tests")
+          if discovered < minimum:
+              print(
+                  f"::error::Discovered {discovered} tests, expected at least {minimum}. "
+                  "A test module has stopped being collected; a release must not be published "
+                  "from this."
+              )
+              sys.exit(1)
+
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          sys.exit(0 if result.wasSuccessful() else 1)
+          PY

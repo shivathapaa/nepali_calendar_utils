@@ -35,11 +35,15 @@ jobs:
 
       - name: Verify tag matches version
         run: |
+          set -euo pipefail
           VERSION_IN_FILE=$(hatch version)
           TAG_NAME="${GITHUB_REF#refs/tags/}"
+          # A leading v is accepted so either tagging style releases, matching the sibling
+          # Kotlin repository whose history carries both.
+          TAG_VERSION="${TAG_NAME#v}"
           echo "Tag: $TAG_NAME | Version: $VERSION_IN_FILE"
-          if [ "$VERSION_IN_FILE" != "$TAG_NAME" ]; then
-            echo "[X] Tag ($TAG_NAME) does not match version in pyproject.toml ($VERSION_IN_FILE)"
+          if [ "$VERSION_IN_FILE" != "$TAG_VERSION" ]; then
+            echo "::error::Tag ($TAG_NAME) does not match the version in pyproject.toml ($VERSION_IN_FILE). Bump the version or retag before publishing."
             exit 1
           fi
 
