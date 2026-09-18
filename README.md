@@ -70,7 +70,7 @@ Few of them are listed below:
 - Calendar-event SPI (`NepaliEventProvider`, `NepaliCalendarEvent`, `NepaliEventKind`, `NepaliWeekend`) with multi-day spans, and working-day arithmetic (`working_days_between`, `next_working_day`, `add_working_days`).
 - `NepaliCalendarPolicy` and `NepaliDayStatus` - the week an institution keeps plus the events it names, answering for one day or a whole month.
 
-> **New in 3.3.0:** a holiday is now one kind of calendar event. `NepaliCalendarEvent` says whether a day is worked through `closes_offices` rather than leaving it to the category, `NepaliCalendarPolicy` states a week and an event list together and answers `status_of`, `month_status` and the working-day helpers from both, and `spanning_days` / `spanning_through` expand a festival or a leave that runs longer than a day. The 3.0.0 holiday names keep working. See the [release notes](https://github.com/shivathapaa/nepali_calendar_utils/releases).
+> **New in 3.1.0:** a holiday is now one kind of calendar event. `NepaliCalendarEvent` says whether a day is worked through `closes_offices` rather than leaving it to the category, `NepaliCalendarPolicy` states a week and an event list together and answers `status_of`, `month_status` and the working-day helpers from both, and `spanning_days` / `spanning_through` expand a festival or a leave that runs longer than a day. The 3.0.0 holiday names keep working. See the [release notes](https://github.com/shivathapaa/nepali_calendar_utils/releases).
 
 
 ## Installation
