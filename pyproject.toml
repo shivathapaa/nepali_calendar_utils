@@ -27,6 +27,16 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 
+[tool.hatch.build.targets.sdist]
+# Packed from the working directory, not from git, so the contents are listed rather than
+# inferred.
+include = [
+    "src",
+    "tests",
+    "README.md",
+    "LICENSE",
+]
+
 [project.optional-dependencies]
 docs = [
     "sphinx>=7.2",

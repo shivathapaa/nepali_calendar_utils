@@ -1,13 +1,9 @@
-"""Sphinx configuration for the nepali_calendar_utils API reference.
-
-Docstrings are Google-style, so napoleon parses them directly. linkcode maps each
-documented object back to the exact source lines on GitHub, mirroring the source
-links produced by the sibling Kotlin library's Dokka site.
-"""
+"""Sphinx configuration for the nepali_calendar_utils API reference."""
 
 import importlib
 import inspect
 import os
+import pathlib
 import sys
 
 sys.path.insert(0, os.path.abspath("../src"))
@@ -16,12 +12,25 @@ project = "nepali_calendar_utils"
 author = "Shiva Thapa"
 copyright = "2024, Shiva Thapa"
 
-try:
-    from importlib.metadata import version as _dist_version
+def _project_version() -> str:
+    """The version the documentation reports.
 
-    release = _dist_version("nepali_calendar_utils")
-except Exception:
-    release = "3.0.0"
+    Prefers the installed distribution and falls back to pyproject.toml, so a checkout that
+    has not installed the package still reports the project's own version.
+    """
+    try:
+        from importlib.metadata import version as _dist_version
+
+        return _dist_version("nepali_calendar_utils")
+    except Exception:
+        import tomllib
+
+        pyproject = pathlib.Path(__file__).resolve().parent.parent / "pyproject.toml"
+        with pyproject.open("rb") as handle:
+            return tomllib.load(handle)["project"]["version"]
+
+
+release = _project_version()
 version = release
 
 extensions = [
@@ -33,7 +42,7 @@ extensions = [
 ]
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "CODE_RULES.md"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme = "furo"
 html_title = "nepali_calendar_utils"
