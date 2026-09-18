@@ -38,5 +38,5 @@ docs = [
 Homepage = "https://github.com/shivathapaa/nepali_calendar_utils"
 Documentation = "https://shivathapaa.github.io/nepali_calendar_utils/"
 Repository = "https://github.com/shivathapaa/nepali_calendar_utils"
-Changelog = "https://github.com/shivathapaa/nepali_calendar_utils/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/shivathapaa/nepali_calendar_utils/releases"
 "Bug Tracker" = "https://github.com/shivathapaa/nepali_calendar_utils/issues"

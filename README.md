@@ -69,7 +69,7 @@ Few of them are listed below:
 - `NepaliSelectableDates` - Predicate for enabling/disabling dates, with before/after/range factories.
 - Holiday provider SPI (`NepaliHolidayProvider`, `HolidayEntry`, `HolidayKind`, `NepaliWeekend`) and working-day arithmetic (`working_days_between`, `next_working_day`, `add_working_days`).
 
-> **New in 3.0.0:** brings the package to parity with the Kotlin core 3.1.0 release - digit scripts, a text-field date formatter, a holiday provider SPI with working-day helpers, selectable-date factories, `SimpleDate` ordering, and several correctness fixes. See [CHANGELOG.md](CHANGELOG.md).
+> **New in 3.0.0:** brings the package to parity with the Kotlin core 3.1.0 release - digit scripts, a text-field date formatter, a holiday provider SPI with working-day helpers, selectable-date factories, `SimpleDate` ordering, and several correctness fixes. See the [release notes](https://github.com/shivathapaa/nepali_calendar_utils/releases).
 
 
 ## Installation
@@ -107,7 +107,7 @@ The full API reference is published at
 - [Holiday SPI](https://shivathapaa.github.io/nepali_calendar_utils/api/holiday.html) - `NepaliHolidayProvider` and working-day arithmetic.
 - [Selectable dates](https://shivathapaa.github.io/nepali_calendar_utils/api/selectable_dates.html) - `NepaliSelectableDates`.
 
-Release notes live in [CHANGELOG.md](CHANGELOG.md).
+Release notes live on the [releases page](https://github.com/shivathapaa/nepali_calendar_utils/releases).
 
 ## How to use in your project
 
