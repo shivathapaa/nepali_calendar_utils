@@ -1,5 +1,9 @@
 from dataclasses import dataclass, field
 
+from nepali_calendar_utils.data.calendar_system import CalendarSystem
+from nepali_calendar_utils.data.month_calendar import MonthCalendar
+
+
 @dataclass(frozen=True, order=True)
 class SimpleDate:
     """
@@ -79,6 +83,19 @@ class NepaliMonthCalendar:
         """
         return (self.year - years.start) * 12 + self.month - 1
 
+    def to_month_calendar(self) -> MonthCalendar:
+        """
+        Reads this Bikram Sambat month as a calendar-tagged MonthCalendar.
+        """
+        return MonthCalendar(
+            calendar_system=CalendarSystem.BIKRAM_SAMBAT,
+            year=self.year,
+            month=self.month,
+            total_days_in_month=self.total_days_in_month,
+            first_day_of_month=self.first_day_of_month,
+            last_day_of_month=self.last_day_of_month,
+        )
+
 
 @dataclass(frozen=True)
 class CustomCalendar:
@@ -116,6 +133,14 @@ class CustomCalendar:
     day_of_year: int = -1
     week_of_month: int = -1
     week_of_year: int = -1
+
+    @property
+    def calendar_system(self) -> CalendarSystem:
+        """
+        The CalendarSystem this calendar is expressed in, or BIKRAM_SAMBAT when era holds an
+        unrecognised value.
+        """
+        return CalendarSystem.from_era(self.era) or CalendarSystem.BIKRAM_SAMBAT
 
     def to_simple_date(self) -> SimpleDate:
         """

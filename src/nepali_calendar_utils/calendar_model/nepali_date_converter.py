@@ -1,4 +1,7 @@
+from typing import List, Optional
+
 from nepali_calendar_utils.data.custom_calendar import *
+from nepali_calendar_utils.data.month_calendar import MonthCalendar
 from nepali_calendar_utils.calendar_model.nepali_calendar_model import NepaliCalendarModel
 from nepali_calendar_utils.calendar_model.date_converters import DateConverters
 from datetime import date
@@ -113,6 +116,74 @@ class NepaliDateConverter:
             NepaliMonthCalendar: Details of the specified Nepali month.
         """
         return NepaliCalendarModel.get_nepali_month(nepali_year, nepali_month)
+
+    @staticmethod
+    def get_english_month_calendar(english_year: int, english_month: int) -> MonthCalendar:
+        """
+        Gets the details of an English month, the Gregorian counterpart of
+        get_nepali_month_calendar.
+
+        Args:
+            english_year (int): English year, within NepaliCalendarDefaults.EnglishYearRange.
+            english_month (int): English month (1-12).
+
+        Returns:
+            MonthCalendar: Details of the specified English month, tagged as Gregorian.
+        """
+        return DateConverters.english_month_calendar(english_year, english_month)
+
+    @staticmethod
+    def get_english_calendars_in_month(english_year: int, english_month: int) -> List[CustomCalendar]:
+        """
+        Every day of an English month as a CustomCalendar, in day order.
+
+        Args:
+            english_year (int): English year, within NepaliCalendarDefaults.EnglishYearRange.
+            english_month (int): English month (1-12).
+
+        Returns:
+            list[CustomCalendar]: One entry per day of the month.
+        """
+        return DateConverters.english_calendars_in_month(english_year, english_month)
+
+    @staticmethod
+    def get_nepali_calendars_in_english_month(
+        english_year: int, english_month: int
+    ) -> List[Optional[CustomCalendar]]:
+        """
+        The Bikram Sambat equivalent of every day of an English month, in day order, with None
+        for days before NepaliCalendarDefaults.minConvertibleEnglishDate.
+
+        Converts the whole month in one pass, so prefer this over calling convert_english_to_nepali
+        in a loop when mapping a full English month to Bikram Sambat.
+
+        Args:
+            english_year (int): English year, within NepaliCalendarDefaults.EnglishYearRange.
+            english_month (int): English month (1-12).
+
+        Returns:
+            list[CustomCalendar | None]: One entry per day, None where the day has no equivalent.
+        """
+        return DateConverters.nepali_calendars_in_english_month(english_year, english_month)
+
+    @staticmethod
+    def get_english_calendars_in_nepali_month(
+        nepali_year: int, nepali_month: int
+    ) -> List[CustomCalendar]:
+        """
+        The English equivalent of every day of a Nepali month, in day order.
+
+        Converts the whole month in one pass, so prefer this over calling convert_nepali_to_english
+        in a loop when rendering a Nepali month that also shows English dates.
+
+        Args:
+            nepali_year (int): Nepali year, within NepaliCalendarDefaults.NepaliYearRange.
+            nepali_month (int): Nepali month (1-12).
+
+        Returns:
+            list[CustomCalendar]: One entry per day of the Nepali month.
+        """
+        return DateConverters.english_calendars_in_nepali_month(nepali_year, nepali_month)
 
     @staticmethod
     def get_english_calendar(english_yyyy: int, english_mm: int, english_dd: int) -> CustomCalendar:

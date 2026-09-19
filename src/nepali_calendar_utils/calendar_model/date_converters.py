@@ -1,8 +1,10 @@
-from typing import Tuple
+from typing import List, Optional, Tuple
 from nepali_calendar_utils.calendar_model.nepali_calendar_defaults import *
 from nepali_calendar_utils.data.nepali_year_month_map import *
+from nepali_calendar_utils.data.calendar_system import CalendarSystem
 from nepali_calendar_utils.data.custom_calendar import *
-from datetime import date
+from nepali_calendar_utils.data.month_calendar import MonthCalendar
+from datetime import date, timedelta
 
 class DateConverters:
     min_nepali_year = NepaliCalendarDefaults.NepaliYearRange[0]
@@ -530,6 +532,96 @@ class DateConverters:
                 day_of_year, DateConverters._weekday_of(date(english_yyyy, 1, 1))
             ),
         )
+
+    @staticmethod
+    def _next_nepali_date(simple_nepali_date: SimpleDate) -> SimpleDate:
+        """The Bikram Sambat day after ``simple_nepali_date``, rolling month and year."""
+        return DateConverters.adjust_nepali_date_for_day_adjustments(
+            simple_nepali_date.year, simple_nepali_date.month, simple_nepali_date.day_of_month, 1
+        ).to_simple_date()
+
+    @staticmethod
+    def _next_english_date(simple_english_date: SimpleDate) -> SimpleDate:
+        """The Gregorian day after ``simple_english_date``, rolling month and year."""
+        following = date(
+            simple_english_date.year, simple_english_date.month, simple_english_date.day_of_month
+        ) + timedelta(days=1)
+        return SimpleDate(following.year, following.month, following.day)
+
+    @staticmethod
+    def english_month_calendar(english_yyyy: int, english_mm: int) -> MonthCalendar:
+        """The grid geometry of a Gregorian month, tagged as Gregorian."""
+        total_days_in_month, first_day_of_month, last_day_of_month = (
+            DateConverters.calculate_english_month_details(english_yyyy, english_mm)
+        )
+        return MonthCalendar(
+            calendar_system=CalendarSystem.GREGORIAN,
+            year=english_yyyy,
+            month=english_mm,
+            total_days_in_month=total_days_in_month,
+            first_day_of_month=first_day_of_month,
+            last_day_of_month=last_day_of_month,
+        )
+
+    @staticmethod
+    def english_calendars_in_month(english_yyyy: int, english_mm: int) -> List[CustomCalendar]:
+        """Every day of a Gregorian month as a CustomCalendar, in day order."""
+        total_days_in_month = DateConverters.get_total_days_in_english_month(english_yyyy, english_mm)
+        return [
+            DateConverters.get_english_calendar(english_yyyy, english_mm, day_of_month)
+            for day_of_month in range(1, total_days_in_month + 1)
+        ]
+
+    @staticmethod
+    def nepali_calendars_in_english_month(
+        english_yyyy: int, english_mm: int
+    ) -> List[Optional[CustomCalendar]]:
+        """The Bikram Sambat equivalent of every day of a Gregorian month, in day order, with
+        ``None`` for days that predate the conversion anchor (English 1913-04-13).
+
+        Converts the month in one pass: the day walk is paid once, for the month's first
+        convertible day, then each following day advances by one. Calling
+        convert_to_nepali_calendar per day would pay that walk 28 to 31 times.
+        """
+        total_days_in_month = DateConverters.get_total_days_in_english_month(english_yyyy, english_mm)
+        calendars: List[Optional[CustomCalendar]] = []
+
+        nepali_date: Optional[SimpleDate] = None
+        for day_of_month in range(1, total_days_in_month + 1):
+            if nepali_date is not None:
+                nepali_date = DateConverters._next_nepali_date(nepali_date)
+            elif DateConverters.is_english_date_in_conversion_range(english_yyyy, english_mm, day_of_month):
+                nepali_date = DateConverters.convert_to_nepali_calendar(
+                    english_yyyy, english_mm, day_of_month
+                ).to_simple_date()
+            calendars.append(
+                DateConverters.get_nepali_calendar(nepali_date) if nepali_date is not None else None
+            )
+        return calendars
+
+    @staticmethod
+    def english_calendars_in_nepali_month(nepali_yyyy: int, nepali_mm: int) -> List[CustomCalendar]:
+        """The Gregorian equivalent of every day of a Bikram Sambat month, in day order.
+
+        The mirror of nepali_calendars_in_english_month, and the same one-walk-then-advance
+        shape: a dual-date grid needs all 29 to 32 Gregorian days of a Bikram Sambat month, and
+        convert_to_english_calendar would walk from the year anchor for each one.
+        """
+        total_days_in_month = DateConverters.get_total_days_in_nepali_month(nepali_yyyy, nepali_mm)
+        calendars: List[CustomCalendar] = []
+
+        english_date = DateConverters.convert_to_english_calendar(
+            nepali_yyyy, nepali_mm, 1
+        ).to_simple_date()
+        for day_of_month in range(1, total_days_in_month + 1):
+            if day_of_month > 1:
+                english_date = DateConverters._next_english_date(english_date)
+            calendars.append(
+                DateConverters.get_english_calendar(
+                    english_date.year, english_date.month, english_date.day_of_month
+                )
+            )
+        return calendars
 
     @staticmethod
     def is_nepali_calendar_in_conversion_range(nepali_yyyy: int, nepali_mm: int, nepali_dd: int) -> bool:
