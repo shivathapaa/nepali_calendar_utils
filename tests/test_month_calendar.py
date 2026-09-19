@@ -68,6 +68,33 @@ class TestToMonthCalendar(unittest.TestCase):
         )
 
 
+class TestToNepaliMonthCalendar(unittest.TestCase):
+
+    def test_round_trips_a_bikram_sambat_month(self):
+        nepali = NepaliMonthCalendar(
+            year=2082, month=1, total_days_in_month=31, first_day_of_month=1, last_day_of_month=3
+        )
+        self.assertEqual(nepali, nepali.to_month_calendar().to_nepali_month_calendar())
+
+    def test_copies_a_gregorian_month_verbatim(self):
+        # Documented as a narrowing, not a conversion: the numbers stay Gregorian and only the
+        # system tag is dropped, so a caller that needed Bikram Sambat has to convert first.
+        narrowed = _month(year=2026, month=9, first_day_of_month=3).to_nepali_month_calendar()
+
+        self.assertEqual(2026, narrowed.year)
+        self.assertEqual(9, narrowed.month)
+        self.assertEqual(30, narrowed.total_days_in_month)
+        self.assertEqual(3, narrowed.first_day_of_month)
+        self.assertEqual(4, narrowed.last_day_of_month)
+
+    def test_carries_the_same_leading_blanks(self):
+        tagged = _month(first_day_of_month=5)
+        self.assertEqual(
+            tagged.days_from_start_of_week_to_first_of_month,
+            tagged.to_nepali_month_calendar().days_from_start_of_week_to_first_of_month,
+        )
+
+
 class TestEnglishMonthCalendar(unittest.TestCase):
 
     def test_reads_a_gregorian_month(self):

@@ -4,8 +4,12 @@ Mirrors ``dev.shivathapaa.nepalidatepickerkmp.data.MonthCalendar``.
 """
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from nepali_calendar_utils.data.calendar_system import CalendarSystem
+
+if TYPE_CHECKING:
+    from nepali_calendar_utils.data.custom_calendar import NepaliMonthCalendar
 
 
 @dataclass(frozen=True)
@@ -43,3 +47,22 @@ class MonthCalendar:
         ``years`` must be a range in the same :attr:`calendar_system`.
         """
         return (self.year - years.start) * 12 + self.month - 1
+
+    def to_nepali_month_calendar(self) -> "NepaliMonthCalendar":
+        """Narrow this month to the Bikram Sambat-only :class:`NepaliMonthCalendar`.
+
+        The year and month are copied verbatim, so calling this on a
+        :attr:`CalendarSystem.GREGORIAN` month produces a ``NepaliMonthCalendar`` holding
+        Gregorian numbers. Convert the month to Bikram Sambat first when that matters.
+        """
+        # Imported here rather than at module scope: custom_calendar imports this module for
+        # NepaliMonthCalendar.to_month_calendar, so a top-level import would close the cycle.
+        from nepali_calendar_utils.data.custom_calendar import NepaliMonthCalendar
+
+        return NepaliMonthCalendar(
+            year=self.year,
+            month=self.month,
+            total_days_in_month=self.total_days_in_month,
+            first_day_of_month=self.first_day_of_month,
+            last_day_of_month=self.last_day_of_month,
+        )
