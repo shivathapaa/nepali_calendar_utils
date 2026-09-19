@@ -10,8 +10,13 @@ from typing import Optional
 class CalendarSystem(Enum):
     """A calendar system, identified by the ``era`` a :class:`CustomCalendar` carries.
 
-    A date is always stored as :attr:`BIKRAM_SAMBAT` whichever system it is read in, so
-    moving between the two is lossless.
+    This is the named form of the ``era`` integer on :class:`CustomCalendar` and
+    :class:`MonthCalendar` (1 = AD, 2 = BS), so the two representations never disagree:
+    :attr:`era` is the single mapping.
+
+    A calendar carries the system it was read in, so
+    ``NepaliDateConverter.get_english_calendar(...)`` answers :attr:`GREGORIAN` and
+    ``get_nepali_calendar(...)`` answers :attr:`BIKRAM_SAMBAT`.
     """
 
     #: Bikram Sambat, the official calendar of Nepal. ``era`` 2.

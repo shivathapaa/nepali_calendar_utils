@@ -2,6 +2,7 @@
 
 import unittest
 
+from nepali_calendar_utils.calendar_model.nepali_date_converter import NepaliDateConverter
 from nepali_calendar_utils.data.calendar_system import CalendarSystem
 from nepali_calendar_utils.data.custom_calendar import CustomCalendar
 
@@ -51,6 +52,31 @@ class TestCustomCalendarSystem(unittest.TestCase):
         # A restored or parsed value should not crash a caller that only wants to draw a grid.
         self.assertIs(CalendarSystem.BIKRAM_SAMBAT, _calendar(0).calendar_system)
         self.assertIs(CalendarSystem.BIKRAM_SAMBAT, _calendar(7).calendar_system)
+
+
+class TestConverterReadsCarryTheirSystem(unittest.TestCase):
+
+    def test_a_calendar_carries_the_system_it_was_read_in(self):
+        # Pins what CalendarSystem documents: a read is not normalised to one system, so a
+        # Gregorian read stays Gregorian rather than coming back tagged Bikram Sambat.
+        self.assertIs(
+            CalendarSystem.BIKRAM_SAMBAT,
+            NepaliDateConverter.get_nepali_calendar(2082, 5, 24).calendar_system,
+        )
+        self.assertIs(
+            CalendarSystem.GREGORIAN,
+            NepaliDateConverter.get_english_calendar(2024, 9, 9).calendar_system,
+        )
+
+    def test_a_conversion_is_tagged_with_the_system_it_lands_in(self):
+        self.assertIs(
+            CalendarSystem.BIKRAM_SAMBAT,
+            NepaliDateConverter.convert_english_to_nepali(2024, 9, 9).calendar_system,
+        )
+        self.assertIs(
+            CalendarSystem.GREGORIAN,
+            NepaliDateConverter.convert_nepali_to_english(2081, 5, 24).calendar_system,
+        )
 
 
 if __name__ == "__main__":
