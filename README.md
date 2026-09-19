@@ -289,6 +289,11 @@ get_complete_details_of_asar_2078_month = NepaliDateConverter().get_nepali_month
 # The Gregorian counterpart, tagged with the system it belongs to
 september_2026 = NepaliDateConverter.get_english_month_calendar(2026, 9) # returns MonthCalendar
 september_2026.days_from_start_of_week_to_first_of_month # leading blank cells before day 1
+
+# Moving between the two shapes. to_nepali_month_calendar copies the year and month verbatim, so
+# narrowing a Gregorian month yields a NepaliMonthCalendar holding Gregorian numbers.
+asar_2078 = get_complete_details_of_asar_2078_month.to_month_calendar() # returns MonthCalendar
+asar_2078.to_nepali_month_calendar() == get_complete_details_of_asar_2078_month # True
 ```
 
 #### Read a whole month at once
@@ -380,7 +385,11 @@ print(custom_english_date_time)  # Outputs: CustomDateTime(custom_calendar=Custo
 #### Format date and time using a Unicode pattern
 ```python
 # Format time using a Unicode pattern
-time = NepaliDateConverter.current_time()
+# current_time, today_nepali_calendar and today_english_calendar are properties, so they are
+# read off an instance. The formatting functions below take no state and stay on the class.
+nepali_date_converter = NepaliDateConverter()
+
+time = nepali_date_converter.current_time
 
 result = NepaliDateConverter.format_time_by_unicode_pattern(
     unicode_pattern="hh:mm:ss a",
@@ -395,7 +404,7 @@ result = NepaliDateConverter.format_time_by_unicode_pattern(
 )  # result: "02:45:15 AM"
 
 # Format only Nepali date using a Unicode pattern
-nepali_calendar = NepaliDateConverter.today_nepali_calendar()
+nepali_calendar = nepali_date_converter.today_nepali_calendar
 
 result = NepaliDateConverter.format_nepali_date_by_unicode_pattern(
     unicode_pattern="EEEE, MMM dd yyyy",
@@ -404,7 +413,7 @@ result = NepaliDateConverter.format_nepali_date_by_unicode_pattern(
 )  # result: "सोमबार, भदौ २४ २०८१"
 
 # Format only English date using a Unicode pattern
-english_calendar = NepaliDateConverter.today_english_calendar()
+english_calendar = nepali_date_converter.today_english_calendar
 
 result = NepaliDateConverter.format_english_date_by_unicode_pattern(
     unicode_pattern="E, MMM dd yyyy",
@@ -413,8 +422,8 @@ result = NepaliDateConverter.format_english_date_by_unicode_pattern(
 )  # result: "Sat, May 24 2025"
 
 # Format full Nepali date and time using a Unicode pattern
-nepali_calendar = NepaliDateConverter.today_nepali_calendar()
-time = NepaliDateConverter.current_time()
+nepali_calendar = nepali_date_converter.today_nepali_calendar
+time = nepali_date_converter.current_time
 
 result = NepaliDateConverter.format_nepali_date_time_by_unicode_pattern(
     unicode_pattern="yyyy MMMM dd, EEEE a hh:mm:ss",
@@ -424,8 +433,8 @@ result = NepaliDateConverter.format_nepali_date_time_by_unicode_pattern(
 )  # result: "२०८१ भदौ २४, सोमबार दिउँसो ०२:४५:१५"
 
 # Format full English date and time using a Unicode pattern
-english_calendar = NepaliDateConverter.today_english_calendar()
-time = NepaliDateConverter.current_time()
+english_calendar = nepali_date_converter.today_english_calendar
+time = nepali_date_converter.current_time
 
 result = NepaliDateConverter.format_english_date_time_by_unicode_pattern(
     unicode_pattern="yyyy MMMM dd, EEEE hh:mm:ss A",
