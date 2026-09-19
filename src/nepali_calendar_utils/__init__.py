@@ -9,6 +9,7 @@ from nepali_calendar_utils.data.digit_script import (
     to_latin_digits,
 )
 from nepali_calendar_utils.data.nepali_date_formatter import NepaliDateFormatter, DatePattern
+from nepali_calendar_utils.data.nepali_time_formatter import NepaliTimeFormatter
 from nepali_calendar_utils.nepali_selectable_dates import NepaliSelectableDates
 from nepali_calendar_utils.event import (
     NepaliCalendarEvent,
@@ -47,9 +48,10 @@ __all__ = [
     "default_digit_script",
     "latin_digit_or_none",
     "to_latin_digits",
-    # Text-field formatter
+    # Text-field formatter and the time-of-day wire form
     "NepaliDateFormatter",
     "DatePattern",
+    "NepaliTimeFormatter",
     # Selectable dates
     "NepaliSelectableDates",
     # Calendar events, day status and working-day arithmetic
