@@ -76,9 +76,12 @@ class NepaliEventProvider:
             provider.filtered(lambda e: e.kind is NepaliEventKind.GOVERNMENT_PUBLIC)
 
         ``predicate`` runs on every entry of a year each time that year is asked for,
-        so keep it a test rather than a lookup. The filtered view answers
-        :meth:`closes_on` from what survives the filter, so narrowing a list narrows
-        the closures with it.
+        so keep it a test rather than a lookup.
+
+        A day stays closed while a closure behind it survives the filter, so narrowing
+        a list narrows the closures with it. A day the source shuts without naming a
+        closing event stays shut, since there is nothing to narrow.
+        ``filtered(lambda e: True)`` therefore answers exactly what the source does.
         """
         return _FilteredEventProvider(self, predicate)
 
@@ -104,6 +107,16 @@ class _FilteredEventProvider(NepaliEventProvider):
 
     def events(self, year: int) -> Set[NepaliCalendarEvent]:
         return {event for event in self._source.events(year) if self._predicate(event)}
+
+    def closes_on(self, date: SimpleDate) -> bool:
+        if not self._source.closes_on(date):
+            return False
+        closures = [
+            event
+            for event in self._source.events(date.year)
+            if event.date == date and event.closes_offices
+        ]
+        return not closures or any(self._predicate(event) for event in closures)
 
 
 class _NoOpEventProvider(NepaliEventProvider):

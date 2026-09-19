@@ -192,6 +192,25 @@ class TestProviderComposition(unittest.TestCase):
         )
         self.assertEqual(2, len(chained.events(2082)))
 
+    def test_filtered_hears_a_provider_that_answers_closes_on_directly(self):
+        filtered = AlwaysClosedProvider().filtered(lambda event: True)
+        self.assertTrue(filtered.closes_on(SimpleDate(2082, 1, 1)))
+
+    def test_filtered_of_everything_answers_what_the_source_does(self):
+        source = self.national + self.local
+        identical = source.filtered(lambda event: True)
+        for day in (1, 5, 9):
+            date = SimpleDate(2082, 1, day)
+            self.assertEqual(source.closes_on(date), identical.closes_on(date), date)
+        self.assertEqual(source.events(2082), identical.events(2082))
+
+    def test_filtered_keeps_a_closure_whose_event_survived(self):
+        date = SimpleDate(2082, 1, 1)
+        public_only = (self.national + self.local).filtered(
+            lambda event: event.kind is NepaliEventKind.GOVERNMENT_PUBLIC
+        )
+        self.assertTrue(public_only.closes_on(date))
+
 
 class TestWorkingDays(unittest.TestCase):
     def setUp(self):
