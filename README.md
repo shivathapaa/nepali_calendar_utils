@@ -61,16 +61,66 @@ Few of them are listed below:
 - `CustomCalendar` - Calendar which represents both English and Nepali dates.
 - `SimpleDate` and  `SimpleTime` - Simple representation of date and time.
 - `NepaliMonthCalendar` - Nepali Month Calendar which consists of the month details.
+- `MonthCalendar` and `CalendarSystem` - A month of either calendar, tagged with the system it belongs to (`BIKRAM_SAMBAT` era 2, `GREGORIAN` era 1), so layout code need not know which one produced it.
 - `NepaliDateLocale` - To control language, dateFormat, weekDayName, and monthName.
 - `NepaliCalendarUtilsLang` - Set of supported language (English & Nepali for now).
 - `NepaliDateConverter` - Provides utilities for date conversions (english to nepali and vice versa), get formatted date(6), get time, get date-time in ISO 8601 format, calculate days in between two date, and many more.
 - `DigitScript` - Numeral script (`LATIN` / `DEVANAGARI`) decoupled from language, with digit localization helpers.
 - `NepaliDateFormatter` - Parse and format `SimpleDate` for short numeric text-field input (`YYYY/MM/DD` and friends).
+- `NepaliTimeFormatter` - Parse and format `SimpleTime` as `HH:mm:ss` with an optional nine-digit fractional part, the shape a time takes on the wire.
 - `NepaliSelectableDates` - Predicate for enabling/disabling dates, with before/after/range factories.
 - Calendar-event SPI (`NepaliEventProvider`, `NepaliCalendarEvent`, `NepaliEventKind`, `NepaliWeekend`) with multi-day spans, and working-day arithmetic (`working_days_between`, `next_working_day`, `add_working_days`).
 - `NepaliCalendarPolicy` and `NepaliDayStatus` - the week an institution keeps plus the events it names, answering for one day or a whole month.
 
 > **New in 3.1.0:** a holiday is now one kind of calendar event. `NepaliCalendarEvent` says whether a day is worked through `closes_offices` rather than leaving it to the category, `NepaliCalendarPolicy` states a week and an event list together and answers `status_of`, `month_status` and the working-day helpers from both, and `spanning_days` / `spanning_through` expand a festival or a leave that runs longer than a day. The 3.0.0 holiday names keep working. See the [release notes](https://github.com/shivathapaa/nepali_calendar_utils/releases).
+
+
+## Talking to a Kotlin, Android, Swift or JavaScript client
+
+This package is a port of the `:core` module of the sibling
+[Nepali-Date-Picker](https://github.com/shivathapaa/Nepali-Date-Picker) project, so a payload
+written here reads on any of its platforms. The conversion tables, every conversion result, and
+the wire strings below are verified identical between the two.
+
+The Kotlin side has an optional `kotlinx-serialization` artifact that defines these shapes. There
+is no Python counterpart and none is needed: dataclasses and `json` produce the same bytes.
+
+| Type | On the wire | Produce it here with |
+| --- | --- | --- |
+| `SimpleDate` | `"2082-02-14"` | `NepaliDateFormatter.format(date, DatePattern.YYYY_DASH_MM_DASH_DD)` |
+| `SimpleDate` (struct form) | `{"year": 2082, "month": 2, "dayOfMonth": 14}` | `dataclasses.asdict`, renaming `day_of_month` |
+| `SimpleTime` | `"09:30:00"`, `"23:59:59.123456789"` | `NepaliTimeFormatter.format(time)` |
+| `CustomCalendar` | 12-field object: `year`, `month`, `dayOfMonth`, `era`, `firstDayOfMonth`, `lastDayOfMonth`, `totalDaysInMonth`, `dayOfWeekInMonth`, `dayOfWeek`, `dayOfYear`, `weekOfMonth`, `weekOfYear` | `dataclasses.asdict`, camel-casing the keys |
+| `CalendarSystem` | `1` for Gregorian, `2` for Bikram Sambat | `system.era` |
+| `NepaliCalendarEvent` | `{"date": "2082-01-01", "name": "...", "kind": "GovernmentPublic"}`, plus `closesOffices`, `id` and `payload` when set | see the note below |
+| `NepaliDayStatus` | `{"isWeeklyOff": false, "events": [...]}` | - |
+
+The last five `CustomCalendar` fields are optional going back into Kotlin and default to `-1`, so
+a payload that omits them still decodes. When all you mean is a day, send the `SimpleDate` string
+rather than a whole calendar record.
+
+**Field names differ by convention.** This package is snake_case and the others are camelCase, so
+`day_of_month` travels as `dayOfMonth`. Convert at the boundary; nothing in the values changes.
+
+**`kind` needs translating.** Kotlin writes the enum's own name, `GovernmentPublic`, `Religious`,
+`Regional`, `Observance`. This package spells the same members `GOVERNMENT_PUBLIC`, `RELIGIOUS`,
+`REGIONAL`, `OBSERVANCE`, and the Swift and JavaScript APIs use `governmentPublic`. Kotlin rejects
+a name it does not know rather than guessing, since the guess would decide whether a day closes an
+office:
+
+```python
+_TO_WIRE = {
+    NepaliEventKind.GOVERNMENT_PUBLIC: "GovernmentPublic",
+    NepaliEventKind.RELIGIOUS: "Religious",
+    NepaliEventKind.REGIONAL: "Regional",
+    NepaliEventKind.OBSERVANCE: "Observance",
+}
+_FROM_WIRE = {wire: kind for kind, wire in _TO_WIRE.items()}
+```
+
+**A span is many entries.** A Kotlin event covers exactly one day, so something that runs longer
+travels as one entry per day sharing an `id`. `spanning_days` and `spanning_through` already build
+that shape; collapse it back with `id` on the way in.
 
 
 ## Installation
@@ -235,7 +285,28 @@ NepaliDateConverter().get_nepali_calendar(2082, 4, 16) # returns CustomCalendar
 total_days_in_magh_2081 = NepaliDateConverter().get_total_days_in_nepali_month(2081, 10) # returns 30 (Int)
     
 get_complete_details_of_asar_2078_month = NepaliDateConverter().get_nepali_month_calendar(2078, 3) # returns NepaliMonthCalendar
+
+# The Gregorian counterpart, tagged with the system it belongs to
+september_2026 = NepaliDateConverter.get_english_month_calendar(2026, 9) # returns MonthCalendar
+september_2026.days_from_start_of_week_to_first_of_month # leading blank cells before day 1
 ```
+
+#### Read a whole month at once
+```python
+# Every day of a Gregorian month, in day order.
+days = NepaliDateConverter.get_english_calendars_in_month(2026, 9) # list[CustomCalendar], 30 long
+
+# The Bikram Sambat equivalent of every day of a Gregorian month. A day before the conversion
+# anchor (English 1913-04-13) has no equivalent and comes back as None rather than a guess.
+paired = NepaliDateConverter.get_nepali_calendars_in_english_month(2026, 9)
+convertible = [day for day in paired if day is not None]
+
+# The mirror: every day of a Bikram Sambat month as a Gregorian calendar.
+english_days = NepaliDateConverter.get_english_calendars_in_nepali_month(2082, 1)
+```
+
+Each of these converts the whole month in one pass, so prefer them over calling
+`convert_english_to_nepali` or `convert_nepali_to_english` in a loop.
 
 #### Add or Subtract number days and get CustomCalendar
 ```python
@@ -471,6 +542,25 @@ NepaliDateFormatter.parse("2082/02/14", DatePattern.YYYY_SLASH_MM_SLASH_DD)  # S
 NepaliDateFormatter.parse("२०८२/०२/१४", DatePattern.YYYY_SLASH_MM_SLASH_DD)  # SimpleDate(2082, 2, 14)
 NepaliDateFormatter.parse("2082/13/14", DatePattern.YYYY_SLASH_MM_SLASH_DD)  # None (bad month)
 ```
+
+#### Parse / format a time of day with `NepaliTimeFormatter`
+```python
+from nepali_calendar_utils import NepaliTimeFormatter, SimpleTime
+
+# Format - the fractional part appears only when the nanosecond is non-zero
+NepaliTimeFormatter.format(SimpleTime(9, 30, 0, 0))              # "09:30:00"
+NepaliTimeFormatter.format(SimpleTime(23, 59, 59, 123456789))    # "23:59:59.123456789"
+
+# Parse - accepts Latin and Devanagari digits; returns None on anything it would not have written
+NepaliTimeFormatter.parse("09:30:00")       # SimpleTime(9, 30, 0, 0)
+NepaliTimeFormatter.parse("9:5:3")          # SimpleTime(9, 5, 3, 0) - field widths are not enforced
+NepaliTimeFormatter.parse("०९:३०:००")        # SimpleTime(9, 30, 0, 0)
+NepaliTimeFormatter.parse("24:00:00")       # None (hour out of range)
+```
+
+This is the transport form, fixed to Latin digits and a 24-hour clock. For something to show a
+user, reach for `get_formatted_time_in_english`, `get_formatted_time_in_nepali`, or
+`format_time_by_unicode_pattern` instead.
 
 #### Restrict selectable dates
 ```python
