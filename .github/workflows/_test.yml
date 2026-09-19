@@ -45,11 +45,11 @@ jobs:
       #
       # Set so that losing even the smallest test file falls below it, which is the whole point: a
       # floor further down than that lets a dropped file pass. The smallest file is 6 cases against
-      # a total of 481 when last measured, on 3.1.0, so the floor sits 6 under. Re-measure and
+      # a total of 484 when last measured, on 3.1.0, so the floor sits 6 under. Re-measure and
       # raise it whenever the suite changes; counting per file locally is enough.
       - name: Run tests
         env:
-          MINIMUM_TESTS: 475
+          MINIMUM_TESTS: 478
         run: |
           python - <<'PY'
           import os, sys, unittest
