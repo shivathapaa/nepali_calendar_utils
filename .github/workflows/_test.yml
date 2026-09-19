@@ -48,6 +48,8 @@ jobs:
       # a total of 489 when last measured, on 3.1.0, so the floor sits 6 under. Re-measure and
       # raise it whenever the suite changes; counting per file locally is enough.
       - name: Run tests
+        # bash on every leg: the Windows runner defaults to PowerShell, which has no heredoc.
+        shell: bash
         env:
           MINIMUM_TESTS: 483
         run: |
