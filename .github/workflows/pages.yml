@@ -15,10 +15,10 @@ concurrency:
   group: pages-${{ github.ref }}
   cancel-in-progress: true
 
+# The deploy job adds what deploy-pages needs. The build job only reads, so it cannot publish to
+# the live environment.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   build:
@@ -49,6 +49,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

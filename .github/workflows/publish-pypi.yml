@@ -4,9 +4,10 @@ on:
   release:
     types: [released, prereleased]
 
+# The publish job adds the `id-token: write` that PyPI trusted publishing needs. Granting it here
+# would hand it to every leg of the test matrix and to the build job as well.
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   # Gate: the full test matrix (every supported Python version and OS) must pass
@@ -64,6 +65,8 @@ jobs:
       url: https://pypi.org/project/nepali_calendar_utils/${{ github.ref_name }}
 
     permissions:
+      contents: read
+      # PyPI trusted publishing exchanges this for a registry token.
       id-token: write
 
     steps:
